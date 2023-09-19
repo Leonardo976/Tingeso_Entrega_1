@@ -1,5 +1,4 @@
 package edu.mtisw.monolithicwebapp.controllers;
-
 import edu.mtisw.monolithicwebapp.entities.UsuarioEntity;
 import edu.mtisw.monolithicwebapp.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
