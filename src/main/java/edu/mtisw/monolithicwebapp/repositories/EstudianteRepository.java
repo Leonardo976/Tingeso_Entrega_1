@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 public interface EstudianteRepository extends CrudRepository<EstudianteEntity, Long> {
     public EstudianteEntity findByRut(String rut);
 
-    @Query(value = "SELECT * FROM students WHERE students.rut = :rut", nativeQuery = true)
+    @Query(value = "SELECT * FROM estudiantes WHERE estudiantes.rut = :rut", nativeQuery = true)
     EstudianteEntity findByRutNativeQuery(@Param("rut") String rut);
 }
 

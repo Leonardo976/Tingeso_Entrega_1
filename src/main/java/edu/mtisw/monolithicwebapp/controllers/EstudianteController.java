@@ -5,10 +5,7 @@ import edu.mtisw.monolithicwebapp.services.EstudianteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 
@@ -17,7 +14,7 @@ import java.util.ArrayList;
 public class EstudianteController {
 
     @Autowired
-    EstudianteService estudianteService;
+    private EstudianteService estudianteService;
 
     @GetMapping("/list")
     public String list(Model model) {
@@ -30,19 +27,20 @@ public class EstudianteController {
     public String getAllStudents(Model model) {
         ArrayList<EstudianteEntity> estudiantes = estudianteService.getAllEstudiantes();
         model.addAttribute("estudiantes", estudiantes);
-        return "estudiante-lista"; // Nombre de la plantilla Thymeleaf
+        return "index"; // Nombre de la plantilla Thymeleaf
     }
 
 
     @GetMapping("/students/new")
     public String showStudentForm(Model model) {
         model.addAttribute("estudiante", new EstudianteEntity());
-        return "estudiante/formulario";
+        return "estudiante-formulario";
     }
 
     @PostMapping("/students/save")
     public String saveStudent(@ModelAttribute EstudianteEntity estudiante) {
         estudianteService.saveStudent(estudiante);
-        return "redirect:/estudiantes/";
+        return "redirect:/estudiante-formulario/";
     }
+
 }
