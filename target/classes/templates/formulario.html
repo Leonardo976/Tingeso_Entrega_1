@@ -98,36 +98,37 @@
   <a class="btn" href="/"><button>Volver al menú principal</button></a>
 </header>
 <div class = "mainclass">
-  <form  th:action="@{/estudiante-formulario}" method="POST">
+  <form  th:action="@{/guardar}" method="POST">
     <h1><b>Registrar datos estudiante</b></h1>
     <div class="formcontainer">
       <hr/>
       <div class="container">
         <label><strong>Rut</strong></label>
-        <input type="text" id = "rut"
+        <input type="text" id="rut"
                placeholder="Ingrese el Rut del estudiante" name="rut" required>
         <label><strong>Nombres</strong></label>
-        <input type="text" id = "nombres"
+        <input type="text" id="nombres"
                placeholder="Ingrese los nombres del estudiante" name="nombres" required>
         <label><strong>Apellidos</strong></label>
-        <input type="text" id = "apellidos"
+        <input type="text" id="apellidos"
                placeholder="Ingrese los apellidos del estudiante" name="apellidos" required>
         <label><strong>Fecha de nacimiento</strong></label>
-        <input type="text" id = "fechaNacimiento"
+        <input type="text" id="fechaNacimiento"
                placeholder="Ingrese fecha de nacimiento del estudiante (0000/11/22)" name="fechaNacimiento" required>
         <label><strong>Tipo de colegio de procedencia</strong></label>
-        <input type="text" id = "tipoColegioProcedencia"
+        <input type="text" id="tipoColegioProcedencia"
                placeholder="Ingrese tipo de colegio de procedencia " name="tipoColegioProcedencia" required>
         <label><strong>Nombre del colegio</strong></label>
-        <input type="text" id = "nombreColegio"
+        <input type="text" id="nombreColegio"
                placeholder="Ingrese nombre del colegio" name="nombreColegio" required>
         <label><strong>Año de egreso del colegio</strong></label>
-        <input type="text" id = "anioEgresoColegio"
+        <input type="text" id="anioEgresoColegio"
                placeholder="Ingrese año de egreso del colegio" name="anioEgresoColegio" required>
       </div>
       <button type="submit">Registrar datos estudiante</button>
     </div>
   </form>
 </div>
+
 </body>
 </html>

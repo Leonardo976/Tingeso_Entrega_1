@@ -20,27 +20,23 @@ public class EstudianteController {
     public String list(Model model) {
         ArrayList<EstudianteEntity> estudiantes=estudianteService.obtenerEstudiantes();
         model.addAttribute("estudiantes",estudiantes);
-        return "index";
-    }
-
-    @GetMapping("/students")
-    public String getAllStudents(Model model) {
-        ArrayList<EstudianteEntity> estudiantes = estudianteService.getAllEstudiantes();
-        model.addAttribute("estudiantes", estudiantes);
-        return "index"; // Nombre de la plantilla Thymeleaf
+        return "lista-estudiantes";
     }
 
 
-    @GetMapping("/students/new")
+    @GetMapping("/formulario")
     public String showStudentForm(Model model) {
         model.addAttribute("estudiante", new EstudianteEntity());
-        return "estudiante-formulario";
+        return "formulario";
     }
 
-    @PostMapping("/students/save")
+    @PostMapping("/guardar")
     public String saveStudent(@ModelAttribute EstudianteEntity estudiante) {
         estudianteService.saveStudent(estudiante);
-        return "redirect:/estudiante-formulario/";
+        return "redirect:/list";
     }
+
+
+
 
 }
