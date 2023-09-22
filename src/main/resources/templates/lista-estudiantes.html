@@ -1,12 +1,58 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>My Web App</title>
+  <title>Lista de Estudiantes - My Web App</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .container-sm {
+      margin-top: 20px;
+    }
+    .btn-menu {
+      margin-bottom: 10px;
+    }
+    .btn-menu a {
+      text-decoration: none;
+      color: #fff;
+    }
+    .btn-menu a:hover {
+      text-decoration: none;
+      color: #fff;
+    }
+    .table {
+      background-color: #fff;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+    .thead-dark th {
+      background-color: #343a40;
+      color: #fff;
+    }
+    .btn-primary {
+      background-color: #007bff;
+      border-color: #007bff;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+    .btn-danger {
+      background-color: #dc3545;
+      border-color: #dc3545;
+    }
+    .btn-danger:hover {
+      background-color: #c82333;
+      border-color: #bd2130;
+    }
+  </style>
 </head>
 <body>
 <div class="container-sm">
+  <div class="btn-menu">
+    <a class="btn btn-primary" th:href="@{/}" role="button">Volver al Menú Principal</a>
+  </div>
   <table class="table">
     <thead class="thead-dark">
     <tr>
@@ -18,6 +64,7 @@
       <th>Tipo de colegio</th>
       <th>Nombre de Colegio</th>
       <th>Año de Egreso Colegio</th>
+      <th>Acciones</th>
     </tr>
     </thead>
     <tbody>
@@ -31,8 +78,10 @@
       <td th:text="${estudiante.nombreColegio}"></td>
       <td th:text="${estudiante.anioEgresoColegio}"></td>
       <td>
-        <a class="btn btn-primary" href="#" role="button">Editar</a>
-        <a class="btn btn-danger" href="#" role="button">Eliminar</a>
+        <a class="btn btn-primary" th:href="@{/editarEstudiante/{id}(id=${estudiante.id})}" role="button">Editar</a>
+        <form th:action="@{/eliminarEstudiante/{id}(id=${estudiante.id})}" method="post" onsubmit="return confirm('¿Estás seguro de eliminar este estudiante?')">
+          <button type="submit" class="btn btn-danger">Eliminar</button>
+        </form>
       </td>
     </tr>
     </tbody>
