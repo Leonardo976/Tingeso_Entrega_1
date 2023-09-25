@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Buscar Estudiante por Rut - My Web App</title>
+
+</head>
+<body>
+<div class="container">
+  <h1>Buscar Estudiante por Rut</h1>
+  <form th:action="@{/buscar-rut}" method="post">
+    <div class="form-group">
+      <label for="rut">Rut del Estudiante:</label>
+      <input type="text" class="form-control" id="rut" name="rut" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Buscar</button>
+  </form>
+</div>
+</body>
+</html>

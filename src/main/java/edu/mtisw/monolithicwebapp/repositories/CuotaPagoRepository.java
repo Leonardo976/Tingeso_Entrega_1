@@ -12,4 +12,5 @@ public interface CuotaPagoRepository extends JpaRepository<CuotaPagoEntity, Long
 
     // Método para buscar todas las cuotas pendientes que no han sido pagadas
     List<CuotaPagoEntity> findByPagadaFalse();
+    List<CuotaPagoEntity> findByEstudiante_Rut(String rut);
 }

@@ -5,8 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Data
@@ -18,16 +17,49 @@ public class CuotaPagoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     // Relación ManyToOne con EstudianteEntity
     @ManyToOne
     @JoinColumn(name = "estudiante_id")
     private EstudianteEntity estudiante;
 
-    private String tipoPago; // Cambiado de Enum a String
+    private String tipoPago;
 
     private int numeroCuota;
     private double monto;
-    private Date fechaVencimiento;
+    private LocalDate fechaVencimiento;
     private boolean pagada;
 
+
+    private LocalDate calcularFechaVencimiento(int numeroCuota) {
+        // Supongamos que las cuotas se pagan mensualmente
+        // Puedes ajustar la lógica según tus requisitos
+
+        // Obtener la fecha actual
+        LocalDate fechaActual = LocalDate.now();
+
+        // Calcular la fecha de vencimiento sumando meses al mes actual
+        // Por ejemplo, aquí se suma el número de cuotas como meses a la fecha actual
+        LocalDate fechaVencimiento = fechaActual.plusMonths(numeroCuota);
+
+        return fechaVencimiento;
+    }
+
+    public void setFechaVencimiento(int numeroCuota) {
+        // Supongamos que las cuotas se pagan mensualmente
+        // Puedes ajustar la lógica según tus requisitos
+
+        // Obtener la fecha actual
+        LocalDate fechaActual = LocalDate.now();
+
+        // Calcular la fecha de vencimiento sumando meses al mes actual
+        // Por ejemplo, aquí se suma el número de cuotas como meses a la fecha actual
+        LocalDate fechaVencimiento = fechaActual.plusMonths(numeroCuota);
+
+        this.fechaVencimiento = fechaVencimiento;
+    }
+
+    public LocalDate getFechaVencimiento() {
+        return fechaVencimiento;
+    }
 }

@@ -31,6 +31,10 @@ public class EstudianteEntity {
     private int anioEgresoColegio;
 
 
+    // Anotación para definir la relación con las cuotas de pago
+    @OneToMany(mappedBy = "estudiante", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CuotaPagoEntity> cuotasPago;
+
     // Agregar la lista de puntajes de pruebas
     @ElementCollection
     @CollectionTable(name = "puntajes_pruebas", joinColumns = @JoinColumn(name = "estudiante_id"))

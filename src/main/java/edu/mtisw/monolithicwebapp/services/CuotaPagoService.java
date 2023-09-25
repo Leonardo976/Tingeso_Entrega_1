@@ -47,20 +47,7 @@ public class CuotaPagoService {
         return cuotaPagoRepository.findById(id);
     }
 
-    public CuotaPagoEntity updateCuotaPago(Long id, CuotaPagoEntity nuevaCuotaPago) {
-        return cuotaPagoRepository.findById(id)
-                .map(cuotaPago -> {
-                    cuotaPago.setNumeroCuota(nuevaCuotaPago.getNumeroCuota());
-                    cuotaPago.setMonto(nuevaCuotaPago.getMonto());
-                    cuotaPago.setFechaVencimiento(nuevaCuotaPago.getFechaVencimiento());
-                    cuotaPago.setPagada(nuevaCuotaPago.isPagada());
-                    return cuotaPagoRepository.save(cuotaPago);
-                })
-                .orElseGet(() -> {
-                    nuevaCuotaPago.setId(id);
-                    return cuotaPagoRepository.save(nuevaCuotaPago);
-                });
-    }
+
 
     public void deleteCuotaPago(Long id) {
         cuotaPagoRepository.deleteById(id);
@@ -77,7 +64,7 @@ public class CuotaPagoService {
     }
 
     // Lógica para calcular el monto de la cuota con los descuentos correspondientes
-    private double calcularMontoCuotaConDescuentos(EstudianteEntity estudiante) {
+    double calcularMontoCuotaConDescuentos(EstudianteEntity estudiante) {
         String tipoColegio = estudiante.getTipoColegioProcedencia();
         int aniosEgreso = estudiante.getAnioEgresoColegio();
 
@@ -109,7 +96,7 @@ public class CuotaPagoService {
 
 
     // Lógica para obtener el número máximo de cuotas según el tipo de colegio de procedencia
-    private int obtenerNumeroMaximoCuotas(EstudianteEntity estudiante) {
+    int obtenerNumeroMaximoCuotas(EstudianteEntity estudiante) {
         String tipoColegio = estudiante.getTipoColegioProcedencia();
 
         // Definir el número máximo de cuotas según el tipo de colegio de procedencia
@@ -148,7 +135,7 @@ public class CuotaPagoService {
         LocalDate fechaActual = LocalDate.now();
 
         for (CuotaPagoEntity cuota : cuotasPendientes) {
-            Date fechaVencimiento = cuota.getFechaVencimiento();
+            LocalDate fechaVencimiento = cuota.getFechaVencimiento();
             long mesesAtraso = ChronoUnit.MONTHS.between((Temporal) fechaVencimiento, fechaActual);
 
             // Aplicar el interés según la cantidad de meses de atraso

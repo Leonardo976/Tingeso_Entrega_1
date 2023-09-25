@@ -38,27 +38,15 @@ public class CuotaPagoController {
         return cuotaPagoRepository.findById(id);
     }
 
-    // Endpoint para actualizar una cuota de pago existente
-    @PutMapping("/{id}")
-    public CuotaPagoEntity updateCuotaPago(@PathVariable Long id, @RequestBody CuotaPagoEntity nuevaCuotaPago) {
-        return cuotaPagoRepository.findById(id)
-                .map(cuotaPago -> {
-                    // Actualizar los campos necesarios de la cuota de pago
-                    cuotaPago.setNumeroCuota(nuevaCuotaPago.getNumeroCuota());
-                    cuotaPago.setMonto(nuevaCuotaPago.getMonto());
-                    cuotaPago.setFechaVencimiento(nuevaCuotaPago.getFechaVencimiento());
-                    cuotaPago.setPagada(nuevaCuotaPago.isPagada());
-                    return cuotaPagoRepository.save(cuotaPago);
-                })
-                .orElseGet(() -> {
-                    nuevaCuotaPago.setId(id);
-                    return cuotaPagoRepository.save(nuevaCuotaPago);
-                });
-    }
 
     // Endpoint para eliminar una cuota de pago por su ID
     @DeleteMapping("/{id}")
     public void deleteCuotaPago(@PathVariable Long id) {
         cuotaPagoRepository.deleteById(id);
+    }
+
+    @GetMapping("/estudiante/{rut}")
+    public List<CuotaPagoEntity> getCuotasPagoByEstudianteRut(@PathVariable String rut) {
+        return cuotaPagoRepository.findByEstudiante_Rut(rut);
     }
 }

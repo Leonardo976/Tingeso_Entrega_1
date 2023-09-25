@@ -1,0 +1,37 @@
+<!-- estudiante-detalle.html -->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <!-- Encabezado de la página -->
+</head>
+<body>
+<!-- Mostrar los datos básicos del estudiante -->
+<h1>Detalles del Estudiante</h1>
+<p>RUT: <span th:text="${estudiante.rut}"></span></p>
+<p>Nombres: <span th:text="${estudiante.nombres}"></span></p>
+<p>Apellidos: <span th:text="${estudiante.apellidos}"></span></p>
+
+<!-- Mostrar las cuotas de pago -->
+<h2>Cuotas de Pago</h2>
+<table>
+  <thead>
+  <tr>
+    <th>Número de Cuota</th>
+    <th>Monto</th>
+    <th>Fecha de Vencimiento</th>
+    <th>Estado de Pago</th>
+  </tr>
+  </thead>
+  <tbody>
+  <!-- Iterar a través de las cuotas de pago del estudiante -->
+  <tr th:each="cuota : ${estudiante.cuotasPago}">
+    <td th:text="${cuota.numeroCuota}"></td>
+    <td th:text="${cuota.monto}"></td>
+    <td th:text="${cuota.fechaVencimiento}"></td>
+    <td th:text="${cuota.pagada ? 'Pagada' : 'Pendiente'}"></td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>
