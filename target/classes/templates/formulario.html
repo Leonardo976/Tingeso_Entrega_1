@@ -9,8 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
   <style>
-    .mainclass{
+    .mainclass {
       margin-top: 20px;
       display: flex;
       justify-content: center;
@@ -38,7 +39,7 @@
       width: 100%;
     }
     h1 {
-      text-align:center;
+      text-align: center;
     }
     button:hover {
       opacity: 0.8;
@@ -49,7 +50,7 @@
     }
     .container {
       padding: 16px 0;
-      text-align:left;
+      text-align: left;
     }
     span.psw {
       float: right;
@@ -57,7 +58,7 @@
       padding-right: 15px;
     }
     /* Change styles for span on extra small screens */
-    .header{
+    .header {
       background-color: #1b3039;
       display: flex;
       justify-content: flex-end;
@@ -65,12 +66,12 @@
       height: 85px;
       padding: 5px 10%;
     }
-    .header .logo{
+    .header .logo {
       margin-right: auto;
       color: white;
-      font-family: 'Pacifico',serif;
+      font-family: 'Pacifico', serif;
     }
-    .header .btn button{
+    .header .btn button {
       margin-left: 20px;
       font-weight: 700;
       color: #1b3039;
@@ -81,12 +82,22 @@
       cursor: pointer;
       transition: all 0.3s ease 0s;
     }
-    .header .btn button:hover{
+    .header .btn button:hover {
       background-color: #e2f1f8;
       color: #ffbc0e;
       transform: scale(1.1);
     }
   </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+    $(function() {
+      // Inicializar el selector de fecha
+      $("#fechaNacimiento").datepicker({
+        dateFormat: "yy/mm/dd"
+      });
+    });
+  </script>
 </head>
 <body>
 <header class="header">
@@ -97,8 +108,8 @@
   </nav>
   <a class="btn" href="/"><button>Volver al menú principal</button></a>
 </header>
-<div class = "mainclass">
-  <form  th:action="@{/guardar}" method="POST">
+<div class="mainclass">
+  <form th:action="@{/guardar}" method="POST">
     <h1><b>Registrar datos estudiante</b></h1>
     <div class="formcontainer">
       <hr/>

@@ -49,4 +49,6 @@ public class CuotaPagoController {
     public List<CuotaPagoEntity> getCuotasPagoByEstudianteRut(@PathVariable String rut) {
         return cuotaPagoRepository.findByEstudiante_Rut(rut);
     }
+
+
 }

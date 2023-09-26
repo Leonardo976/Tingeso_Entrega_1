@@ -51,6 +51,10 @@ public class EstudianteService {
         return Optional.ofNullable(estudianteRepository.findByRut(rut));
     }
 
+    public EstudianteEntity getEstudianteByRut(String rut) {
+        Optional<EstudianteEntity> estudiante = Optional.ofNullable(estudianteRepository.findByRut(rut));
+        return estudiante.orElse(null);
+    }
 
 
 

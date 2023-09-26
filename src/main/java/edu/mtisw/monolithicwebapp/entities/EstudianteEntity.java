@@ -25,11 +25,14 @@ public class EstudianteEntity {
     private String rut;
     private String apellidos;
     private String nombres;
+
     private String fechaNacimiento;
+
     private String tipoColegioProcedencia;
     private String nombreColegio;
     private int anioEgresoColegio;
-
+    private Double matricula;
+    private Double arancel;
 
     // Anotación para definir la relación con las cuotas de pago
     @OneToMany(mappedBy = "estudiante", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -52,5 +55,4 @@ public class EstudianteEntity {
         }
         return 0.0; // Valor por defecto si no hay puntajes
     }
-
 }

@@ -64,6 +64,10 @@
       <th>Tipo de colegio</th>
       <th>Nombre de Colegio</th>
       <th>Año de Egreso Colegio</th>
+      <!-- Agrega las columnas para matrícula y arancel (ocultas) -->
+      <th style="display: none;">Matrícula</th>
+      <th style="display: none;">Arancel</th>
+      <!-- Fin de las nuevas columnas -->
       <th>Acciones</th>
     </tr>
     </thead>
@@ -77,6 +81,10 @@
       <td th:text="${estudiante.tipoColegioProcedencia}"></td>
       <td th:text="${estudiante.nombreColegio}"></td>
       <td th:text="${estudiante.anioEgresoColegio}"></td>
+      <!-- Agrega las celdas para matrícula y arancel (ocultas) -->
+      <td style="display: none;" th:text="${estudiante.matricula}"></td>
+      <td style="display: none;" th:text="${estudiante.arancel}"></td>
+      <!-- Fin de las nuevas celdas -->
       <td>
         <a class="btn btn-primary" th:href="@{/editarEstudiante/{id}(id=${estudiante.id})}" role="button">Editar</a>
         <form th:action="@{/eliminarEstudiante/{id}(id=${estudiante.id})}" method="post" onsubmit="return confirm('¿Estás seguro de eliminar este estudiante?')">

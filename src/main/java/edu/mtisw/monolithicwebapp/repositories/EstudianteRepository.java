@@ -12,5 +12,8 @@ public interface EstudianteRepository extends CrudRepository<EstudianteEntity, L
 
     @Query(value = "SELECT * FROM estudiantes WHERE estudiantes.rut = :rut", nativeQuery = true)
     EstudianteEntity findByRutNativeQuery(@Param("rut") String rut);
+
+
+
 }
 

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -163,4 +163,53 @@ public class CuotaPagoService {
             return 15.0;  // 15% de interés para más de 3 meses de atraso
         }
     }
+
+    // Método para calcular la fecha de vencimiento de una cuota basado en el número de cuota
+    private LocalDate calcularFechaVencimiento(int numeroCuota) {
+        // Supongamos que las cuotas se pagan mensualmente
+        // Puedes ajustar la lógica según tus requisitos
+
+        // Obtener la fecha actual
+        LocalDate fechaActual = LocalDate.now();
+
+        // Calcular la fecha de vencimiento sumando meses al mes actual
+        // Por ejemplo, aquí se suma el número de cuotas como meses a la fecha actual
+        LocalDate fechaVencimiento = fechaActual.plusMonths(numeroCuota);
+
+        return fechaVencimiento;
+    }
+
+    public List<CuotaPagoEntity> calcularYCrearCuotasParaEstudiante(EstudianteEntity estudiante) {
+        // Calcular el número máximo de cuotas según el tipo de colegio de procedencia
+        int maxCuotas = obtenerNumeroMaximoCuotas(estudiante);
+
+        // Calcular el monto de cada cuota con los descuentos correspondientes
+        double montoCalculado = calcularMontoCuotaConDescuentos(estudiante);
+
+        List<CuotaPagoEntity> cuotasGeneradas = new ArrayList<>();
+
+        // Crear y asociar las cuotas con el estudiante
+        for (int numeroCuota = 1; numeroCuota <= maxCuotas; numeroCuota++) {
+            CuotaPagoEntity cuotaPago = new CuotaPagoEntity();
+            cuotaPago.setNumeroCuota(numeroCuota);
+            cuotaPago.setMonto(montoCalculado);
+            cuotaPago.setFechaVencimiento(calcularFechaVencimiento(numeroCuota)); // Aquí se pasa el número de cuota
+            cuotaPago.setPagada(false);
+            cuotaPago.setEstudiante(estudiante);
+
+            // Guardar la cuota de pago en la base de datos
+            cuotaPagoRepository.save(cuotaPago);
+
+            cuotasGeneradas.add(cuotaPago);
+        }
+
+        return cuotasGeneradas;
+    }
+
+    public List<CuotaPagoEntity> getCuotasByEstudiante(EstudianteEntity estudiante) {
+        return cuotaPagoRepository.findByEstudiante(estudiante);
+    }
+
+
+
 }
