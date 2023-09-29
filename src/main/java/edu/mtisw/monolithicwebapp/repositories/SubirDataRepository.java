@@ -28,4 +28,6 @@ public interface SubirDataRepository extends JpaRepository<SubirDataEntity, Inte
     // Agregar consulta para encontrar por puntajeObtenido
     @Query("SELECT s FROM SubirDataEntity s WHERE s.puntajeObtenido = :puntajeObtenido")
     List<SubirDataEntity> findByPuntajeObtenido(@Param("puntajeObtenido") Integer puntajeObtenido);
+
+    List<SubirDataEntity> findByRut(String rut);
 }

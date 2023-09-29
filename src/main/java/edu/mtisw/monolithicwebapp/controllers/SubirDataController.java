@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping
@@ -39,5 +40,31 @@ public class SubirDataController {
         model.addAttribute("datas", datas);
         return "fileInformation";
     }
+    @PostMapping("/actualizarPromedio")
+    public String actualizarPromedio(@RequestParam("rut") String rut) {
+        // Obtiene los puntajes del estudiante por su rut
+        List<SubirDataEntity> puntajes = subirData.obtenerPuntajesPruebasPorRut(rut);
 
+        // Calcula el promedio de puntajes
+        double promedio = calcularPromedioPuntajes(puntajes);
+
+        // Llama al servicio para actualizar el promedio
+        subirData.actualizarPromedioPuntajes(rut, promedio);
+
+        // Redirige a donde desees después de actualizar el promedio
+        return "redirect:/fileInformation";
+    }
+
+    private double calcularPromedioPuntajes(List<SubirDataEntity> puntajes) {
+        if (puntajes.isEmpty()) {
+            return 0.0;
+        }
+
+        int sumaPuntajes = 0;
+        for (SubirDataEntity puntaje : puntajes) {
+            sumaPuntajes += puntaje.getPuntajeObtenido();
+        }
+
+        return (double) sumaPuntajes / puntajes.size();
+    }
 }

@@ -11,6 +11,9 @@
 <p><strong>RUT:</strong> <span th:text="${estudiante.rut}"></span></p>
 <p><strong>Nombres:</strong> <span th:text="${estudiante.nombres}"></span></p>
 <p><strong>Apellidos:</strong> <span th:text="${estudiante.apellidos}"></span></p>
+<p><strong>Tipo Colegio:</strong> <span th:text="${estudiante.tipoColegioProcedencia}"></span></p>
+<p><strong>Matricula:</strong> <span th:text="${estudiante.matricula}"></span></p>
+<p><strong>Arancel base:</strong> <span th:text="${estudiante.arancel}"></span></p>
 <!-- Agrega más campos del estudiante aquí -->
 
 <!-- Mostrar las cuotas de pago -->
@@ -31,6 +34,7 @@
     <td th:text="${cuota.monto}"></td>
     <td th:text="${cuota.fechaVencimiento}"></td>
     <td th:text="${cuota.pagada ? 'Pagada' : 'Pendiente'}"></td>
+
   </tr>
   </tbody>
 </table>

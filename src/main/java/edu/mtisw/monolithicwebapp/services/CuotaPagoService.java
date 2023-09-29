@@ -86,13 +86,21 @@ public class CuotaPagoService {
             descuentoAniosEgreso = 0.04;
         } // No se aplica descuento para 5 o más años
 
+        // Calcular el descuento basado en el puntaje promedio de pruebas
+        double descuentoPuntajePromedio = calcularDescuentoPorPuntajePromedio(estudiante);
+
+        // Sumar los descuentos
+        double descuentoTotal = descuentoTipoColegio + descuentoAniosEgreso + descuentoPuntajePromedio;
+
         // Calcular el monto total de la cuota con los descuentos aplicados
         double montoTotalCuota = 1500000.0;  // Monto base del arancel de estudio
-        double descuentoTotal = (montoTotalCuota * descuentoTipoColegio) + (montoTotalCuota * descuentoAniosEgreso);
-        double montoConDescuento = montoTotalCuota - descuentoTotal;
+        double montoConDescuento = montoTotalCuota - (montoTotalCuota * descuentoTotal);
 
         return montoConDescuento;
     }
+
+
+
 
 
     // Lógica para obtener el número máximo de cuotas según el tipo de colegio de procedencia
@@ -112,9 +120,9 @@ public class CuotaPagoService {
         return maxCuotas;
     }
 
+    // Método para calcular el descuento basado en el puntaje promedio de pruebas
     private double calcularDescuentoPorPuntajePromedio(EstudianteEntity estudiante) {
-        // Supongamos que los puntajes de las pruebas están almacenados en el objeto EstudianteEntity
-        int puntajePromedio = (int) estudiante.getPuntajePromedioPruebas();
+        double puntajePromedio = estudiante.getPuntajePromedioPruebas();
 
         if (puntajePromedio >= 950 && puntajePromedio <= 1000) {
             return 0.10;  // Descuento del 10% para puntajes entre 950 y 1000
@@ -209,6 +217,25 @@ public class CuotaPagoService {
     public List<CuotaPagoEntity> getCuotasByEstudiante(EstudianteEntity estudiante) {
         return cuotaPagoRepository.findByEstudiante(estudiante);
     }
+
+    // Método para calcular y actualizar cuotas basadas en los puntajes de pruebas
+    public void actualizarCuotasConPuntajes(EstudianteEntity estudiante) {
+        // Calcular el monto de cada cuota con los nuevos descuentos correspondientes
+        double montoCalculado = calcularMontoCuotaConDescuentos(estudiante);
+
+        List<CuotaPagoEntity> cuotasEstudiante = cuotaPagoRepository.findByEstudiante(estudiante);
+
+        // Actualizar los montos de las cuotas existentes
+        for (CuotaPagoEntity cuota : cuotasEstudiante) {
+            cuota.setMonto(montoCalculado);
+            // Puedes actualizar la fecha de vencimiento si es necesario
+            // cuota.setFechaVencimiento(calcularFechaVencimiento(cuota.getNumeroCuota()));
+        }
+
+        // Guardar las cuotas actualizadas en la base de datos
+        cuotaPagoRepository.saveAll(cuotasEstudiante);
+    }
+
 
 
 

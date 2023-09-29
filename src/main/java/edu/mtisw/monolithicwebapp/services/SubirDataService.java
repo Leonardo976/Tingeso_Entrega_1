@@ -1,6 +1,8 @@
 package edu.mtisw.monolithicwebapp.services;
 
+import edu.mtisw.monolithicwebapp.entities.EstudianteEntity;
 import edu.mtisw.monolithicwebapp.entities.SubirDataEntity;
+import edu.mtisw.monolithicwebapp.repositories.EstudianteRepository;
 import edu.mtisw.monolithicwebapp.repositories.SubirDataRepository;
 import lombok.Generated;
 import org.slf4j.Logger;
@@ -29,6 +31,11 @@ import java.util.Optional;
 public class SubirDataService {
     @Autowired
     private SubirDataRepository dataRepository;
+    @Autowired
+    private EstudianteRepository estudianteRepository;
+    @Autowired
+    private EstudianteService estudianteService;
+
 
     private final Logger logg = LoggerFactory.getLogger(SubirDataService.class);
 
@@ -86,7 +93,7 @@ public class SubirDataService {
 
     private void procesarLineaCSV(String lineaCSV) {
         String[] campos = lineaCSV.split(";");
-        if (campos.length == 3) { // Asegúrate de que haya tres campos
+        if (campos.length == 3) {
             String rut = campos[0];
             String fechaExamen = campos[1];
             Integer puntajeObtenido = Integer.parseInt(campos[2]);
@@ -165,4 +172,40 @@ public class SubirDataService {
     public ArrayList<SubirDataEntity> obtenerData(String rut) {
         return dataRepository.deleteByRut(rut);
     }
+
+    // Método para calcular y actualizar el promedio de puntajes de un estudiante
+    public void actualizarPromedioPuntajes(String rut, double promedio) {
+        EstudianteEntity estudiante = estudianteService.getEstudianteByRut(rut);
+
+        if (estudiante != null) {
+            // Actualizar el promedio en el objeto estudiante
+            estudiante.setPuntajePromedio(promedio);
+
+            // Guardar el estudiante actualizado en la base de datos (si es necesario)
+            estudianteService.saveStudent(estudiante);
+        }
+    }
+    // Método para obtener puntajes de pruebas por rut de estudiante
+    public List<SubirDataEntity> obtenerPuntajesPruebasPorRut(String rut) {
+        return dataRepository.findByRut(rut);
+    }
+
+
+    public double calcularPromedioPuntajes(String rut) {
+        // Obtener la lista de puntajes de pruebas por el rut del estudiante
+        List<SubirDataEntity> puntajes = dataRepository.findByRut(rut);
+
+        if (puntajes != null && !puntajes.isEmpty()) {
+            // Calcular el promedio de puntajes
+            double sumaPuntajes = 0.0;
+            for (SubirDataEntity puntaje : puntajes) {
+                sumaPuntajes += puntaje.getPuntajeObtenido();
+            }
+            return sumaPuntajes / puntajes.size();
+        }
+
+        // En caso de que no haya puntajes para el estudiante
+        return 0.0; // O algún otro valor predeterminado
+    }
+
 }
