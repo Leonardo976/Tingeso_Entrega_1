@@ -32,9 +32,16 @@ public class EstudianteEntity {
 
     private Double promedioPuntajes;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "puntajes_id")
+    private PuntajesEntity puntajesPruebas_;
+
 
     @Column(name = "puntaje_promedio_pruebas")
     private Double puntajePromedioPruebas = 0.0; // Inicialización del campo en el constructor
+
+    @OneToOne(mappedBy = "estudiante", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private PuntajesEntity puntajesEntity;
 
     // Anotación para definir la relación con las cuotas de pago
     @OneToMany(mappedBy = "estudiante", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -47,12 +54,23 @@ public class EstudianteEntity {
     private List<Integer> puntajesPruebas;
 
 
-    public Double getPuntajePromedioPruebas() {
-        return puntajePromedioPruebas;
-    }
 
     public void setPuntajePromedioPruebas(Double puntajePromedioPruebas) {
         this.puntajePromedioPruebas = puntajePromedioPruebas;
+    }
+
+    public double getPuntajePromedioPruebas() {
+        if (puntajesPruebas_ != null) {
+            List<Double> puntajes = puntajesPruebas_.getPuntajesPruebas();
+            if (!puntajes.isEmpty()) {
+                double suma = 0.0;
+                for (Double puntaje : puntajes) {
+                    suma += puntaje;
+                }
+                return suma / puntajes.size();
+            }
+        }
+        return 0.0; // Manejo de caso vacío
     }
 
 

@@ -55,10 +55,11 @@ public class EstudianteController {
 
     @GetMapping("/list")
     public String list(Model model) {
-        List<EstudianteEntity> estudiantes = estudianteService.obtenerEstudiantes();
+        List<EstudianteEntity> estudiantes = estudianteService.obtenerEstudiantesConPuntajes();
         model.addAttribute("estudiantes", estudiantes);
         return "lista-estudiantes";
     }
+
 
     @GetMapping("/formulario")
     public String showStudentForm(Model model) {
@@ -147,17 +148,18 @@ public class EstudianteController {
         return "confirmacion";
     }
 
-    @PutMapping("/{estudianteId}/actualizar-puntajes")
+    // Endpoint para actualizar los puntajes de un estudiante por ID
+    @PutMapping("/{id}/actualizar-puntajes")
     public ResponseEntity<String> actualizarPuntajesDeEstudiante(
-            @PathVariable Long estudianteId,
+            @PathVariable Long id,
             @RequestBody List<Integer> puntajesPruebas) {
 
         try {
-            EstudianteEntity estudiante = estudianteService.actualizarPuntajes(estudianteId, puntajesPruebas);
+            EstudianteEntity estudiante = estudianteService.actualizarPuntajes(id, puntajesPruebas);
             cuotaPagoService.actualizarCuotasConPuntajes(estudiante);
             return ResponseEntity.ok("Puntajes actualizados correctamente.");
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Estudiante no encontrado con ID: " + estudianteId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Estudiante no encontrado con ID: " + id);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno al actualizar los puntajes.");
         }
@@ -209,15 +211,18 @@ public class EstudianteController {
         return "vista_promedio";
     }
 
-    @PostMapping("/{estudianteId}/calcular-promedio")
-    public ResponseEntity<String> calcularYActualizarPromedio(@PathVariable Long estudianteId) {
+    // Endpoint para calcular y actualizar el promedio de puntajes de un estudiante por ID
+    @PostMapping("/{id}/calcular-y-actualizar-promedio")
+    public ResponseEntity<String> calcularYActualizarPromedio(@PathVariable Long id) {
         try {
-            double promedio = estudianteService.calcularPromedioService(estudianteId);
+            double promedio = estudianteService.calcularPromedioService(id);
             return ResponseEntity.ok("Promedio calculado y actualizado correctamente: " + promedio);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
+
+
 
 
 }

@@ -75,7 +75,7 @@ public class EstudianteService {
         return estudiante.orElse(null);
     }
 
-    // Método para actualizar los puntajes de pruebas de un estudiante
+    // Método para actualizar los puntajes de pruebas de un estudiante por ID
     public EstudianteEntity actualizarPuntajes(Long estudianteId, List<Integer> nuevosPuntajes) {
         Optional<EstudianteEntity> estudianteOptional = estudianteRepository.findById(estudianteId);
 
@@ -117,13 +117,9 @@ public class EstudianteService {
 
         if (estudianteOptional.isPresent()) {
             EstudianteEntity estudiante = estudianteOptional.get();
-            List<Integer> puntajes = estudiante.getPuntajesPruebas();
-            List<Integer> puntajesNumericos = puntajes.stream()
-                    .filter(p -> p != null) // Filtra los puntajes no nulos
-                    .collect(Collectors.toList());
 
-            double promedio = calcularPromedioPuntajes(puntajesNumericos);
-            estudiante.setPuntajePromedioPruebas(promedio);
+            // Utiliza la lógica de la entidad para calcular el promedio
+            double promedio = estudiante.getPuntajePromedioPruebas();
 
             // Guarda el estudiante actualizado en la base de datos
             estudianteRepository.save(estudiante);
@@ -143,7 +139,7 @@ public class EstudianteService {
 
             // Filtra los puntajes no numéricos y luego calcula el promedio
             List<Integer> puntajesNumericos = puntajes.stream()
-                    .filter(p -> isNumeric(p.toString()))
+                    .filter(p -> p != null) // Filtra los puntajes no nulos
                     .collect(Collectors.toList());
 
             double promedio = calcularPromedioPuntajes(puntajesNumericos);
@@ -172,6 +168,23 @@ public class EstudianteService {
 
         // Luego, guarda todos los estudiantes en la base de datos
         estudianteRepository.saveAll(estudiantes);
+    }
+
+    public List<EstudianteEntity> obtenerEstudiantesConPuntajes() {
+        List<EstudianteEntity> estudiantes = (List<EstudianteEntity>) estudianteRepository.findAll();
+
+        for (EstudianteEntity estudiante : estudiantes) {
+            // Verifica si la entidad tiene puntajes
+            if (estudiante.getPuntajesPruebas() != null) {
+                List<Integer> puntajes = estudiante.getPuntajesPruebas();
+                double promedio = calcularPromedioPuntajes(puntajes);
+                // Formatea el promedio como una cadena con dos decimales
+                String promedioFormateado = String.format("%.2f", promedio);
+                estudiante.setPuntajePromedioPruebas(Double.valueOf(promedioFormateado));
+            }
+        }
+
+        return estudiantes;
     }
 
 
