@@ -38,6 +38,7 @@ public class SubirDataService {
     private EstudianteService estudianteService;
     @Autowired
     private  SubirDataService subirDataService;
+    private Long idEstudiante;
 
 
     private final Logger logg = LoggerFactory.getLogger(SubirDataService.class);
@@ -221,6 +222,26 @@ public class SubirDataService {
     public double calcularPromedioPuntajes(String rut) {
         // Obtener la lista de puntajes de pruebas por el rut del estudiante
         List<SubirDataEntity> puntajes = dataRepository.findByRut(rut);
+
+        if (puntajes != null && !puntajes.isEmpty()) {
+            // Calcular el promedio de puntajes
+            double sumaPuntajes = 0.0;
+            for (SubirDataEntity puntaje : puntajes) {
+                sumaPuntajes += puntaje.getPuntajeObtenido();
+            }
+            return sumaPuntajes / puntajes.size();
+        }
+
+        // En caso de que no haya puntajes para el estudiante
+        return 0.0; // O algún otro valor predeterminado
+    }
+
+
+
+    // Método para calcular el promedio individual de puntajes por estudiante
+    public double calcularPromedioPuntajesPorEstudiante(Long idEstudiante) {
+        // Obtener la lista de puntajes de pruebas por el ID del estudiante
+        List<SubirDataEntity> puntajes = dataRepository.findByIdEstudiante(idEstudiante);
 
         if (puntajes != null && !puntajes.isEmpty()) {
             // Calcular el promedio de puntajes

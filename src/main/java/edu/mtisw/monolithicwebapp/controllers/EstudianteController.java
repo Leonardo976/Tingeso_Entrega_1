@@ -200,4 +200,22 @@ public class EstudianteController {
 
         return (double) totalPuntajes / puntajesPruebas.size();
     }
+
+
+    @GetMapping("/estudiante/{id}/promedio")
+    public String mostrarPromedio(@PathVariable Long id, Model model) {
+        double promedio = estudianteService.calcularPromedioService(id);
+        model.addAttribute("promedio", promedio);
+        return "vista_promedio";
+    }
+
+    @PostMapping("/{estudianteId}/calcular-promedio")
+    public ResponseEntity<String> calcularYActualizarPromedio(@PathVariable Long estudianteId) {
+        try {
+            double promedio = estudianteService.calcularPromedioService(estudianteId);
+            return ResponseEntity.ok("Promedio calculado y actualizado correctamente: " + promedio);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

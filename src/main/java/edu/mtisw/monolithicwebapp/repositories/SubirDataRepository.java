@@ -33,4 +33,6 @@ public interface SubirDataRepository extends JpaRepository<SubirDataEntity, Inte
     public List<Object[]> findPuntajesYEstudiantesPorRut(@Param("rut") String rut);
 
     List<SubirDataEntity> findByRut(String rut);
+
+    List<SubirDataEntity> findByIdEstudiante(Long idEstudiante);
 }

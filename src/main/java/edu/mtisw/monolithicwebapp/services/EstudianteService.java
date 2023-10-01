@@ -4,6 +4,7 @@ import edu.mtisw.monolithicwebapp.entities.CuotaPagoEntity;
 import edu.mtisw.monolithicwebapp.entities.EstudianteEntity;
 import edu.mtisw.monolithicwebapp.repositories.EstudianteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EstudianteService {
@@ -22,18 +24,6 @@ public class EstudianteService {
     private CuotaPagoService cuotaPagoService;
 
 
-    public List<EstudianteEntity> obtenerEstudiantes() {
-        List<EstudianteEntity> estudiantes = (List<EstudianteEntity>) estudianteRepository.findAll();
-
-        // Calcular el promedio de puntajes para cada estudiante
-        for (EstudianteEntity estudiante : estudiantes) {
-            List<Integer> puntajes = estudiante.getPuntajesPruebas();
-            double promedio = calcularPromedioPuntajes(puntajes);
-            estudiante.setPuntajePromedioPruebas(promedio);
-        }
-
-        return estudiantes;
-    }
 
     private double calcularPromedioPuntajes(List<Integer> puntajesPruebas) {
         if (puntajesPruebas == null || puntajesPruebas.isEmpty()) {
@@ -122,6 +112,67 @@ public class EstudianteService {
     }
 
 
+    public double calcularPromedioService(Long estudianteId) {
+        Optional<EstudianteEntity> estudianteOptional = estudianteRepository.findById(estudianteId);
+
+        if (estudianteOptional.isPresent()) {
+            EstudianteEntity estudiante = estudianteOptional.get();
+            List<Integer> puntajes = estudiante.getPuntajesPruebas();
+            List<Integer> puntajesNumericos = puntajes.stream()
+                    .filter(p -> p != null) // Filtra los puntajes no nulos
+                    .collect(Collectors.toList());
+
+            double promedio = calcularPromedioPuntajes(puntajesNumericos);
+            estudiante.setPuntajePromedioPruebas(promedio);
+
+            // Guarda el estudiante actualizado en la base de datos
+            estudianteRepository.save(estudiante);
+
+            return promedio;
+        } else {
+            throw new EntityNotFoundException("Estudiante no encontrado con ID: " + estudianteId);
+        }
+    }
+
+
+    public List<EstudianteEntity> obtenerEstudiantes() {
+        List<EstudianteEntity> estudiantes = (List<EstudianteEntity>) estudianteRepository.findAll();
+
+        for (EstudianteEntity estudiante : estudiantes) {
+            List<Integer> puntajes = estudiante.getPuntajesPruebas();
+
+            // Filtra los puntajes no numéricos y luego calcula el promedio
+            List<Integer> puntajesNumericos = puntajes.stream()
+                    .filter(p -> isNumeric(p.toString()))
+                    .collect(Collectors.toList());
+
+            double promedio = calcularPromedioPuntajes(puntajesNumericos);
+            estudiante.setPuntajePromedioPruebas(promedio);
+        }
+
+        return estudiantes;
+    }
+
+    // Función para verificar si una cadena es numérica
+    private boolean isNumeric(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    public void guardarEstudiantesDesdeCSV(List<EstudianteEntity> estudiantes) {
+        for (EstudianteEntity estudiante : estudiantes) {
+            // Calcula el promedio de puntajes y establece el valor en la entidad del estudiante
+            double promedio = calcularPromedioPuntajes(estudiante.getPuntajesPruebas());
+            estudiante.setPuntajePromedioPruebas(promedio);
+        }
+
+        // Luego, guarda todos los estudiantes en la base de datos
+        estudianteRepository.saveAll(estudiantes);
+    }
 
 
 }
