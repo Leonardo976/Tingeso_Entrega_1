@@ -30,6 +30,9 @@ public class EstudianteEntity {
 
     private Double puntajePromedio;
 
+    private Double promedioPuntajes;
+
+
     @Column(name = "puntaje_promedio_pruebas")
     private Double puntajePromedioPruebas = 0.0; // Inicialización del campo en el constructor
 
@@ -43,7 +46,7 @@ public class EstudianteEntity {
     @Column(name = "puntaje")
     private List<Integer> puntajesPruebas;
 
-    // Métodos getter y setter para puntajePromedioPruebas
+
     public Double getPuntajePromedioPruebas() {
         return puntajePromedioPruebas;
     }
@@ -51,4 +54,6 @@ public class EstudianteEntity {
     public void setPuntajePromedioPruebas(Double puntajePromedioPruebas) {
         this.puntajePromedioPruebas = puntajePromedioPruebas;
     }
+
+
 }

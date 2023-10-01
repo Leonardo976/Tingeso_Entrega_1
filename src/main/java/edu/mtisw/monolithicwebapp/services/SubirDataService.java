@@ -67,7 +67,6 @@ public class SubirDataService {
         }
     }
 
-    @Generated
     public void leerTxt(String direccion) {
         String texto = "";
         BufferedReader bf = null;
@@ -79,6 +78,15 @@ public class SubirDataService {
             while ((bfRead = bf.readLine()) != null) {
                 procesarLineaCSV(bfRead);
                 temp = temp + "\n" + bfRead;
+
+                // Dividir la línea CSV y obtener el RUT del estudiante
+                String[] partes = bfRead.split(";");
+                if (partes.length > 0) {
+                    String rutEstudiante = partes[0];
+
+                    // Calcular y actualizar el promedio de puntajes para el estudiante
+                    calcularYActualizarPromedioParaEstudiante(rutEstudiante);
+                }
             }
             texto = temp;
             System.out.println("Archivo leído exitosamente");
@@ -94,6 +102,7 @@ public class SubirDataService {
             }
         }
     }
+
 
     private void procesarLineaCSV(String lineaCSV) {
         String[] campos = lineaCSV.split(";");
@@ -254,6 +263,18 @@ public class SubirDataService {
 
         // En caso de que no haya puntajes para el estudiante
         return 0.0; // O algún otro valor predeterminado
+    }
+
+    public void calcularYActualizarPromedioParaEstudiante(String rut) {
+        List<SubirDataEntity> datos = dataRepository.findByRut(rut);
+        if(datos != null && !datos.isEmpty()) {
+            double suma = 0;
+            for (SubirDataEntity data : datos) {
+                suma += data.getPuntajeObtenido();
+            }
+            double promedio = suma / datos.size();
+            estudianteService.actualizarPromedioPuntajes(rut, promedio);
+        }
     }
 
 

@@ -62,11 +62,11 @@
       <th>Rut</th>
       <th>Nombres</th>
       <th>Apellidos</th>
-      <th>Fecha de nacimiento</th>
-      <th>Tipo de colegio</th>
-      <th>Nombre de Colegio</th>
-      <th>Año de Egreso Colegio</th>
-      <th>Promedio de Pruebas</th>
+      <th>Fecha de Nacimiento</th>
+      <th>Tipo de Colegio de Procedencia</th>
+      <th>Nombre del Colegio</th>
+      <th>Año de Egreso del Colegio</th>
+      <th>Puntaje Promedio de Pruebas</th> <!-- Cambio de nombre -->
       <th>Acciones</th>
     </tr>
     </thead>
@@ -80,8 +80,8 @@
       <td th:text="${estudiante.tipoColegioProcedencia}"></td>
       <td th:text="${estudiante.nombreColegio}"></td>
       <td th:text="${estudiante.anioEgresoColegio}"></td>
-      <!-- Muestra el promedio de pruebas formateado como número decimal con 2 decimales -->
-      <td th:text="${estudiante.puntajePromedioPruebas}"></td>
+      <td th:text="${#strings.toString(estudiante.puntajePromedioPruebas)}"></td> <!-- Convertir a string -->
+
       <td>
         <a class="btn btn-primary" th:href="@{'/editarEstudiante/' + ${estudiante.id}}" role="button">Editar</a>
         <form th:action="@{'/eliminarEstudiante/' + ${estudiante.id}}" method="post" onsubmit="return confirm('¿Estás seguro de eliminar este estudiante?')">
