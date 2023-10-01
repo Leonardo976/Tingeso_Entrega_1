@@ -1,5 +1,6 @@
 package edu.mtisw.monolithicwebapp.services;
 
+import com.sun.jdi.PrimitiveValue;
 import edu.mtisw.monolithicwebapp.entities.EstudianteEntity;
 import edu.mtisw.monolithicwebapp.entities.SubirDataEntity;
 import edu.mtisw.monolithicwebapp.repositories.EstudianteRepository;
@@ -35,6 +36,8 @@ public class SubirDataService {
     private EstudianteRepository estudianteRepository;
     @Autowired
     private EstudianteService estudianteService;
+    @Autowired
+    private  SubirDataService subirDataService;
 
 
     private final Logger logg = LoggerFactory.getLogger(SubirDataService.class);
@@ -98,16 +101,40 @@ public class SubirDataService {
             String fechaExamen = campos[1];
             Integer puntajeObtenido = Integer.parseInt(campos[2]);
 
-            SubirDataEntity newData = new SubirDataEntity();
-            newData.setRut(rut);
-            newData.setFechaExamen(fechaExamen);
-            newData.setPuntajeObtenido(puntajeObtenido);
+            // Buscar el estudiante por rut en la base de datos
+            EstudianteEntity estudiante = estudianteRepository.findByRut(rut);
 
-            guardarData(newData);
+            if (estudiante != null) {
+                // Obtener el ID del estudiante
+                Long idEstudiante = estudiante.getId();
+
+                // Crear un nuevo registro de SubirDataEntity con el ID del estudiante
+                SubirDataEntity newData = new SubirDataEntity();
+                newData.setRut(rut);
+                newData.setFechaExamen(fechaExamen);
+                newData.setPuntajeObtenido(puntajeObtenido);
+                newData.setIdEstudiante(idEstudiante);
+
+                try {
+                    // Guardar newData en la base de datos
+                    subirDataService.guardarData(newData);
+                    System.out.println("Datos guardados para el estudiante con rut: " + rut);
+                } catch (Exception e) {
+                    System.err.println("Error al guardar datos para el estudiante con rut: " + rut);
+                    e.printStackTrace();
+                    // Puedes manejar el error de guardar de acuerdo a tus necesidades
+                }
+            } else {
+                // Manejar el caso en el que no se encuentra el estudiante
+                System.out.println("Estudiante no encontrado para el rut: " + rut);
+                // Puedes lanzar una excepción o manejar el error según tus necesidades
+            }
         } else {
-            logg.warn("Línea CSV incorrecta: " + lineaCSV);
+            System.out.println("Línea CSV incorrecta: " + lineaCSV);
         }
     }
+
+
 
     public void guardarData(SubirDataEntity data) {
         dataRepository.save(data);
@@ -207,5 +234,15 @@ public class SubirDataService {
         // En caso de que no haya puntajes para el estudiante
         return 0.0; // O algún otro valor predeterminado
     }
+
+
+
+    @Autowired
+    public SubirDataService(EstudianteService estudianteService) {
+        this.estudianteService = estudianteService;
+    }
+
+
+
 
 }

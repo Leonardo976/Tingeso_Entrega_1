@@ -3,8 +3,12 @@ import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.repository.query.Param;
+
+
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "data")
@@ -19,6 +23,14 @@ public class SubirDataEntity {
     private String rut;
     private String fechaExamen;
     private Integer puntajeObtenido;
+
+    private Long idEstudiante;
+
+    public List<SubirDataEntity> findByRut(String rut) {
+        return null;
+    }
+
+
 
 
 }

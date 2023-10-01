@@ -29,5 +29,8 @@ public interface SubirDataRepository extends JpaRepository<SubirDataEntity, Inte
     @Query("SELECT s FROM SubirDataEntity s WHERE s.puntajeObtenido = :puntajeObtenido")
     List<SubirDataEntity> findByPuntajeObtenido(@Param("puntajeObtenido") Integer puntajeObtenido);
 
+    @Query("SELECT s.puntajeObtenido, e.nombres, e.apellidos FROM SubirDataEntity s JOIN EstudianteEntity e ON s.rut = e.rut WHERE s.rut = :rut")
+    public List<Object[]> findPuntajesYEstudiantesPorRut(@Param("rut") String rut);
+
     List<SubirDataEntity> findByRut(String rut);
 }

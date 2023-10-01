@@ -112,6 +112,14 @@ public class EstudianteService {
         }
     }
 
+    public Long obtenerIdEstudiantePorRut(String rut) {
+        EstudianteEntity estudiante = estudianteRepository.findByRut(rut);
+        if (estudiante != null) {
+            return estudiante.getId();
+        } else {
+            return null; // Puedes manejar el caso en el que no se encuentre el estudiante
+        }
+    }
 
 
 
