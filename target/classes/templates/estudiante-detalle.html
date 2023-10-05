@@ -12,9 +12,14 @@
 <p><strong>Nombres:</strong> <span th:text="${estudiante.nombres}"></span></p>
 <p><strong>Apellidos:</strong> <span th:text="${estudiante.apellidos}"></span></p>
 <p><strong>Tipo Colegio:</strong> <span th:text="${estudiante.tipoColegioProcedencia}"></span></p>
-<p><strong>Matricula:</strong> <span th:text="${estudiante.matricula}"></span></p>
+<p><strong>Matrícula:</strong> <span th:text="${estudiante.matricula}"></span></p>
 <p><strong>Arancel base:</strong> <span th:text="${estudiante.arancel}"></span></p>
 <!-- Agrega más campos del estudiante aquí -->
+
+<!-- Mostrar mensaje de éxito si está presente en el modelo -->
+<div th:if="${successMessage != null}">
+  <p th:text="${successMessage}"></p>
+</div>
 
 <!-- Mostrar las cuotas de pago -->
 <h2>Cuotas de Pago</h2>
@@ -25,6 +30,7 @@
     <th>Monto</th>
     <th>Fecha de Vencimiento</th>
     <th>Estado de Pago</th>
+    <th>Acción</th> <!-- Agregamos una columna para la acción -->
   </tr>
   </thead>
   <tbody>
@@ -34,7 +40,19 @@
     <td th:text="${cuota.monto}"></td>
     <td th:text="${cuota.fechaVencimiento}"></td>
     <td th:text="${cuota.pagada ? 'Pagada' : 'Pendiente'}"></td>
-
+    <td>
+      <!-- Agrega un campo oculto para 'estudianteRut' -->
+      <input type="hidden" name="estudianteRut" th:value="${estudiante.rut}" />
+      <!-- Formulario para cambiar el estado de pago -->
+      <form action="/cambiarEstadoPago" method="post">
+        <input type="hidden" name="cuotaId" th:value="${cuota.id}" />
+        <select name="nuevoEstado">
+          <option value="pendiente">Pendiente</option>
+          <option value="pagada">Pagada</option>
+        </select>
+        <button type="submit">Cambiar Estado de Pago</button>
+      </form>
+    </td>
   </tr>
   </tbody>
 </table>

@@ -1,9 +1,13 @@
 package edu.mtisw.monolithicwebapp.controllers;
 
 import edu.mtisw.monolithicwebapp.entities.CuotaPagoEntity;
+import edu.mtisw.monolithicwebapp.entities.EstudianteEntity;
 import edu.mtisw.monolithicwebapp.repositories.CuotaPagoRepository;
+import edu.mtisw.monolithicwebapp.services.CuotaPagoService;
+import edu.mtisw.monolithicwebapp.services.EstudianteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -14,6 +18,10 @@ import java.util.Optional;
 @RequestMapping("/cuotas-pago")
 public class CuotaPagoController {
     private final CuotaPagoRepository cuotaPagoRepository;
+    @Autowired
+    private CuotaPagoService cuotaPagoService;
+    @Autowired
+    private EstudianteService estudianteService;
 
     @Autowired
     public CuotaPagoController(CuotaPagoRepository cuotaPagoRepository) {
@@ -38,17 +46,12 @@ public class CuotaPagoController {
         return cuotaPagoRepository.findById(id);
     }
 
-
     // Endpoint para eliminar una cuota de pago por su ID
     @DeleteMapping("/{id}")
     public void deleteCuotaPago(@PathVariable Long id) {
         cuotaPagoRepository.deleteById(id);
     }
 
-    @GetMapping("/estudiante/{rut}")
-    public List<CuotaPagoEntity> getCuotasPagoByEstudianteRut(@PathVariable String rut) {
-        return cuotaPagoRepository.findByEstudiante_Rut(rut);
-    }
 
 
 }

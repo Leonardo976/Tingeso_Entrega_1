@@ -236,6 +236,19 @@ public class CuotaPagoService {
         cuotaPagoRepository.saveAll(cuotasEstudiante);
     }
 
+    public void cambiarEstadoPago(Long cuotaId, String nuevoEstado) {
+        Optional<CuotaPagoEntity> optionalCuota = cuotaPagoRepository.findById(cuotaId);
+
+        if (optionalCuota.isPresent()) {
+            CuotaPagoEntity cuota = optionalCuota.get();
+            cuota.setPagada("pagada".equalsIgnoreCase(nuevoEstado)); // Cambiar el estado de pago
+            cuotaPagoRepository.save(cuota); // Guardar la cuota actualizada en la base de datos
+        } else {
+            // Manejar el caso en el que no se encuentra la cuota por el ID
+            throw new RuntimeException("No se encontró la cuota con ID: " + cuotaId);
+        }
+    }
+
 
 
 

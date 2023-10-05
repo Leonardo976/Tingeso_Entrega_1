@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -221,6 +222,27 @@ public class EstudianteController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PostMapping("/cambiarEstadoPago")
+    public String cambiarEstadoPago(
+            @RequestParam Long cuotaId,
+            @RequestParam String nuevoEstado,
+            @ModelAttribute EstudianteEntity estudiante,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        cuotaPagoService.cambiarEstadoPago(cuotaId, nuevoEstado);
+
+        // Obtén el RUT del estudiante directamente del objeto estudiante
+        String estudianteRut = estudiante.getRut();
+
+        // Agregamos un mensaje de éxito para mostrar en la página de estudiante-detalle
+        redirectAttributes.addAttribute("cuotaId", cuotaId);
+        redirectAttributes.addAttribute("estudianteRut", estudianteRut);
+
+        return "redirect:/buscar-rut"; // Redirige a la página de búsqueda de estudiante
+    }
+
 
 
 
