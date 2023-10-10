@@ -1,9 +1,11 @@
 package edu.mtisw.monolithicwebapp.controllers;
 
 import edu.mtisw.monolithicwebapp.entities.CuotaPagoEntity;
+import edu.mtisw.monolithicwebapp.entities.DescuentoEntity;
 import edu.mtisw.monolithicwebapp.entities.EstudianteEntity;
 import edu.mtisw.monolithicwebapp.entities.SubirDataEntity;
 import edu.mtisw.monolithicwebapp.repositories.CuotaPagoRepository;
+import edu.mtisw.monolithicwebapp.repositories.DescuentoRepository;
 import edu.mtisw.monolithicwebapp.repositories.EstudianteRepository;
 import edu.mtisw.monolithicwebapp.services.CuotaPagoService;
 import edu.mtisw.monolithicwebapp.services.EstudianteService;
@@ -46,6 +48,8 @@ public class EstudianteController {
     @Autowired
     @Lazy
     private SubirDataService subirDataService;
+    @Autowired
+    private DescuentoRepository descuentoRepository;
 
     @Autowired
     public EstudianteController(EstudianteRepository estudianteRepository, CuotaPagoService cuotaPagoService, GenerarCuotaService generarCuotaService) {
@@ -73,7 +77,27 @@ public class EstudianteController {
         estudiante.setMatricula(70000.0);
         estudiante.setArancel(1500000.0);
         estudianteService.saveStudent(estudiante);
-        generarCuotaService.generarCuotasParaEstudiante(estudiante);
+
+        // Generar y actualizar las cuotas para el estudiante
+        List<CuotaPagoEntity> cuotasGeneradas = cuotaPagoService.calcularYCrearCuotasParaEstudiante(estudiante);
+
+        // Iterar sobre las cuotas para aplicar descuentos
+        for (CuotaPagoEntity cuota : cuotasGeneradas) {
+            EstudianteEntity estudianteCuota = cuota.getEstudiante();
+            List<DescuentoEntity> descuentos = descuentoRepository.findByAnioEgresoAndTipoColegioProcedencia(estudianteCuota.getAnioEgreso(), estudianteCuota.getTipoColegioProcedencia());
+
+            double montoCuotaSinDescuento = cuota.getMonto();
+            double montoTotalConDescuento = montoCuotaSinDescuento;
+
+            for (DescuentoEntity descuento : descuentos) {
+                double porcentajeDescuento = descuento.getPorcentajeDescuento() / 100.0;
+                montoTotalConDescuento -= (montoCuotaSinDescuento * porcentajeDescuento);
+            }
+
+            cuota.setMonto(montoTotalConDescuento);
+            cuotaPagoRepository.save(cuota);
+        }
+
         return "redirect:/list";
     }
 

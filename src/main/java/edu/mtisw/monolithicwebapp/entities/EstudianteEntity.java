@@ -31,6 +31,7 @@ public class EstudianteEntity {
     private Double puntajePromedio;
 
     private Double promedioPuntajes;
+    private int anioEgreso;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "puntajes_id")

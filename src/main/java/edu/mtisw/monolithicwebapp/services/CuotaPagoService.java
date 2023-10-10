@@ -1,6 +1,7 @@
 package edu.mtisw.monolithicwebapp.services;
 
 import edu.mtisw.monolithicwebapp.entities.CuotaPagoEntity;
+import edu.mtisw.monolithicwebapp.entities.DescuentoEntity;
 import edu.mtisw.monolithicwebapp.entities.EstudianteEntity;
 import edu.mtisw.monolithicwebapp.repositories.CuotaPagoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +17,15 @@ import java.util.Optional;
 @Service
 public class CuotaPagoService {
 
+
     private final CuotaPagoRepository cuotaPagoRepository;
+    private final List<DescuentoEntity> descuentos; // Lista de descuentos
 
     @Autowired
     public CuotaPagoService(CuotaPagoRepository cuotaPagoRepository) {
         this.cuotaPagoRepository = cuotaPagoRepository;
+        this.descuentos = new ArrayList<>(); // Inicializa la lista de descuentos
     }
-
     public CuotaPagoEntity createCuotaPago(CuotaPagoEntity cuotaPago, EstudianteEntity estudiante) {
         // Calcular el monto de la cuota con los descuentos correspondientes
         double montoCalculado = calcularMontoCuotaConDescuentos(estudiante);
@@ -247,6 +250,53 @@ public class CuotaPagoService {
             // Manejar el caso en el que no se encuentra la cuota por el ID
             throw new RuntimeException("No se encontró la cuota con ID: " + cuotaId);
         }
+    }
+
+    public void aplicarDescuentos(List<DescuentoEntity> descuentos) {
+        // Obtener todas las cuotas de pago
+        List<CuotaPagoEntity> cuotasPago = getAllCuotasPago();
+
+        // Iterar a través de las cuotas y aplicar descuentos
+        for (CuotaPagoEntity cuota : cuotasPago) {
+            double montoOriginal = cuota.getMonto();
+
+            // Aplicar descuentos correspondientes a esta cuota
+            double montoConDescuento = aplicarDescuentosACuota(cuota);
+
+            // Actualizar el monto de la cuota con descuento
+            cuota.setMonto(montoConDescuento);
+
+            // Guardar la cuota actualizada en la base de datos
+            cuotaPagoRepository.save(cuota);
+        }
+    }
+
+    // Método para aplicar descuentos a una cuota específica
+    private double aplicarDescuentosACuota(CuotaPagoEntity cuota) {
+        double montoConDescuento = cuota.getMonto();
+
+        for (DescuentoEntity descuento : descuentos) {
+            if (cumpleCondicionesDescuento(cuota, descuento)) {
+                // Aplicar el descuento a esta cuota
+                double porcentajeDescuento = descuento.getPorcentajeDescuento();
+                montoConDescuento *= (1 - porcentajeDescuento);
+            }
+        }
+
+        return montoConDescuento;
+    }
+
+    private boolean cumpleCondicionesDescuento(CuotaPagoEntity cuota, DescuentoEntity descuento) {
+        // Obtener los datos relevantes de la cuota
+        String tipoColegioCuota = cuota.getEstudiante().getTipoColegioProcedencia();
+        int anioEgresoCuota = cuota.getEstudiante().getAnioEgresoColegio();
+
+        // Obtener los datos relevantes del descuento
+        String tipoColegioDescuento = descuento.getTipoColegioProcedencia();
+        int anioEgresoDescuento = descuento.getAnioEgreso();
+
+        // Verificar si las condiciones del descuento coinciden con los datos de la cuota
+        return tipoColegioCuota.equals(tipoColegioDescuento) && anioEgresoCuota == anioEgresoDescuento;
     }
 
 

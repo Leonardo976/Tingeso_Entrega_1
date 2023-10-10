@@ -1,8 +1,10 @@
 package edu.mtisw.monolithicwebapp.controllers;
 
 import edu.mtisw.monolithicwebapp.entities.CuotaPagoEntity;
+import edu.mtisw.monolithicwebapp.entities.DescuentoEntity;
 import edu.mtisw.monolithicwebapp.entities.EstudianteEntity;
 import edu.mtisw.monolithicwebapp.repositories.CuotaPagoRepository;
+import edu.mtisw.monolithicwebapp.repositories.DescuentoRepository;
 import edu.mtisw.monolithicwebapp.services.CuotaPagoService;
 import edu.mtisw.monolithicwebapp.services.EstudianteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +26,43 @@ public class CuotaPagoController {
     private EstudianteService estudianteService;
 
     @Autowired
-    public CuotaPagoController(CuotaPagoRepository cuotaPagoRepository) {
+    private DescuentoRepository descuentoRepository;
+
+    @Autowired
+    public CuotaPagoController(
+            CuotaPagoRepository cuotaPagoRepository,
+            CuotaPagoService cuotaPagoService,
+            EstudianteService estudianteService,
+            DescuentoRepository descuentoRepository
+    ) {
         this.cuotaPagoRepository = cuotaPagoRepository;
+        this.cuotaPagoService = cuotaPagoService;
+        this.estudianteService = estudianteService;
+        this.descuentoRepository = descuentoRepository;
     }
 
-    // Endpoint para crear una nueva cuota de pago
     @PostMapping("/")
     public CuotaPagoEntity createCuotaPago(@RequestBody CuotaPagoEntity cuotaPago) {
+        EstudianteEntity estudiante = cuotaPago.getEstudiante();
+
+        // Utiliza el repositorio para obtener los descuentos
+        List<DescuentoEntity> descuentos = descuentoRepository.findByAnioEgresoAndTipoColegioProcedencia(estudiante.getAnioEgreso(), estudiante.getTipoColegioProcedencia());
+
+        // Imprime los descuentos obtenidos
+        for (DescuentoEntity descuento : descuentos) {
+            System.out.println("Descuento obtenido: " + descuento);
+        }
+
+        double montoCuotaSinDescuento = cuotaPago.getMonto();
+        double montoTotalConDescuento = montoCuotaSinDescuento;
+
+        for (DescuentoEntity descuento : descuentos) {
+            double porcentajeDescuento = descuento.getPorcentajeDescuento() / 100.0;
+            montoTotalConDescuento -= (montoCuotaSinDescuento * porcentajeDescuento);
+        }
+
+        cuotaPago.setMonto(montoTotalConDescuento);
+
         return cuotaPagoRepository.save(cuotaPago);
     }
 
@@ -51,7 +83,4 @@ public class CuotaPagoController {
     public void deleteCuotaPago(@PathVariable Long id) {
         cuotaPagoRepository.deleteById(id);
     }
-
-
-
 }
