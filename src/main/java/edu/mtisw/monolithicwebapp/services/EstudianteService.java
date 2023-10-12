@@ -187,5 +187,18 @@ public class EstudianteService {
         return estudiantes;
     }
 
+    public EstudianteEntity getEstudianteById(Long id) {
+        Optional<EstudianteEntity> estudianteOptional = estudianteRepository.findById(id);
+
+        if (estudianteOptional.isPresent()) {
+            return estudianteOptional.get();
+        } else {
+            // Manejar el caso en el que no se encuentra el estudiante por el ID
+            throw new RuntimeException("No se encontró el estudiante con ID: " + id);
+        }
+    }
+
+
+
 
 }

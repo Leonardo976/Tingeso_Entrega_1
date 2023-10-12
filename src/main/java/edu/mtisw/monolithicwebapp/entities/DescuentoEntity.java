@@ -23,7 +23,11 @@ public class DescuentoEntity {
     private double promedioNotas;
     private int anioEgreso;
 
+
+    private double umbralMonto;
+
     @Column(name = "porcentaje_descuento")
     private double porcentajeDescuento;
+
 }
 

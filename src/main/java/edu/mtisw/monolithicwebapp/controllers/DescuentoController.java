@@ -1,6 +1,7 @@
 package edu.mtisw.monolithicwebapp.controllers;
 
 import edu.mtisw.monolithicwebapp.entities.DescuentoEntity;
+import edu.mtisw.monolithicwebapp.entities.EstudianteEntity;
 import edu.mtisw.monolithicwebapp.services.CuotaPagoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -25,6 +26,7 @@ public class DescuentoController {
     private List<DescuentoEntity> descuentos = new ArrayList<>();
 
     private final CuotaPagoService cuotaPagoService; // Inyecta el servicio de CuotaPago
+    private EstudianteEntity estudianteEntity;
 
     @Autowired
     public DescuentoController(CuotaPagoService cuotaPagoService) {
@@ -56,6 +58,34 @@ public class DescuentoController {
         } catch (IOException e) {
             e.printStackTrace();
             return "Error al cargar los descuentos.";
+        }
+    }
+
+    private double calcularMontoCuotaConDescuentos(double montoBaseCuota, List<DescuentoEntity> descuentos) {
+        double montoConDescuento = montoBaseCuota;
+
+        for (DescuentoEntity descuento : descuentos) {
+            if (cumpleCondicionesDescuento(montoBaseCuota, descuento)) {
+                // Aplicar el descuento al monto de la cuota
+                double porcentajeDescuento = descuento.getPorcentajeDescuento();
+                montoConDescuento *= (1 - (porcentajeDescuento / 100));
+            }
+        }
+
+        return montoConDescuento;
+    }
+
+    private boolean cumpleCondicionesDescuento(double montoBaseCuota, DescuentoEntity descuento) {
+        // Obtén el umbral de monto del descuento
+        double umbralMonto = descuento.getUmbralMonto();
+
+        // Comprueba si el monto base de la cuota supera el umbral
+        if (montoBaseCuota >= umbralMonto) {
+            // Si el monto base es mayor o igual al umbral, el descuento se aplica
+            return true;
+        } else {
+            // Si no, el descuento no se aplica
+            return false;
         }
     }
 }

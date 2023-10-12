@@ -14,5 +14,9 @@ public interface CuotaPagoRepository extends JpaRepository<CuotaPagoEntity, Long
 
     List<CuotaPagoEntity> findByPagadaFalse();
     List<CuotaPagoEntity> findByEstudiante_Rut(String rut);
+
     List<CuotaPagoEntity> findByEstudiante(EstudianteEntity estudiante);
+
+    List<CuotaPagoEntity> findByEstudianteAndPagadaFalse(EstudianteEntity estudiante);
+
 }

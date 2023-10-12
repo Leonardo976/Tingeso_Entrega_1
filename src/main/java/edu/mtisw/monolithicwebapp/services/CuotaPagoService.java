@@ -26,21 +26,6 @@ public class CuotaPagoService {
         this.cuotaPagoRepository = cuotaPagoRepository;
         this.descuentos = new ArrayList<>(); // Inicializa la lista de descuentos
     }
-    public CuotaPagoEntity createCuotaPago(CuotaPagoEntity cuotaPago, EstudianteEntity estudiante) {
-        // Calcular el monto de la cuota con los descuentos correspondientes
-        double montoCalculado = calcularMontoCuotaConDescuentos(estudiante);
-        cuotaPago.setMonto(montoCalculado);
-
-        // Verificar el número máximo de cuotas permitidas
-        int maxCuotas = obtenerNumeroMaximoCuotas(estudiante);
-        if (cuotaPago.getNumeroCuota() > maxCuotas) {
-            // Manejar el error de cuotas excedidas
-            throw new RuntimeException("Número de cuota excede el máximo permitido.");
-        }
-
-        // Guardar la cuota de pago
-        return cuotaPagoRepository.save(cuotaPago);
-    }
 
     public List<CuotaPagoEntity> getAllCuotasPago() {
         return cuotaPagoRepository.findAll();
@@ -51,23 +36,15 @@ public class CuotaPagoService {
     }
 
 
-
     public void deleteCuotaPago(Long id) {
         cuotaPagoRepository.deleteById(id);
     }
 
     // Lógica para calcular el monto de la cuota con los descuentos correspondientes
-    public CuotaPagoEntity createCuotaPago(CuotaPagoEntity cuotaPago) {
-        // Calcular el monto de la cuota con los descuentos correspondientes
-        double montoCalculado = calcularMontoCuotaConDescuentos(cuotaPago.getEstudiante());
-        cuotaPago.setMonto(montoCalculado);
 
-        // Guardar la cuota de pago
-        return cuotaPagoRepository.save(cuotaPago);
-    }
 
     // Lógica para calcular el monto de la cuota con los descuentos correspondientes
-    double calcularMontoCuotaConDescuentos(EstudianteEntity estudiante) {
+    public double calcularMontoCuotaConDescuentos(EstudianteEntity estudiante) {
         String tipoColegio = estudiante.getTipoColegioProcedencia();
         int aniosEgreso = estudiante.getAnioEgresoColegio();
 
@@ -101,9 +78,6 @@ public class CuotaPagoService {
 
         return montoConDescuento;
     }
-
-
-
 
 
     // Lógica para obtener el número máximo de cuotas según el tipo de colegio de procedencia
@@ -252,31 +226,13 @@ public class CuotaPagoService {
         }
     }
 
-    public void aplicarDescuentos(List<DescuentoEntity> descuentos) {
-        // Obtener todas las cuotas de pago
-        List<CuotaPagoEntity> cuotasPago = getAllCuotasPago();
-
-        // Iterar a través de las cuotas y aplicar descuentos
-        for (CuotaPagoEntity cuota : cuotasPago) {
-            double montoOriginal = cuota.getMonto();
-
-            // Aplicar descuentos correspondientes a esta cuota
-            double montoConDescuento = aplicarDescuentosACuota(cuota);
-
-            // Actualizar el monto de la cuota con descuento
-            cuota.setMonto(montoConDescuento);
-
-            // Guardar la cuota actualizada en la base de datos
-            cuotaPagoRepository.save(cuota);
-        }
-    }
 
     // Método para aplicar descuentos a una cuota específica
     private double aplicarDescuentosACuota(CuotaPagoEntity cuota) {
         double montoConDescuento = cuota.getMonto();
 
         for (DescuentoEntity descuento : descuentos) {
-            if (cumpleCondicionesDescuento(cuota, descuento)) {
+            if (cumpleCondicionesDescuento(cuota.getEstudiante(), descuento)) {
                 // Aplicar el descuento a esta cuota
                 double porcentajeDescuento = descuento.getPorcentajeDescuento();
                 montoConDescuento *= (1 - porcentajeDescuento);
@@ -286,20 +242,118 @@ public class CuotaPagoService {
         return montoConDescuento;
     }
 
-    private boolean cumpleCondicionesDescuento(CuotaPagoEntity cuota, DescuentoEntity descuento) {
-        // Obtener los datos relevantes de la cuota
-        String tipoColegioCuota = cuota.getEstudiante().getTipoColegioProcedencia();
-        int anioEgresoCuota = cuota.getEstudiante().getAnioEgresoColegio();
+
+    public DescuentoEntity buscarDescuentoAplicable(List<DescuentoEntity> descuentos, EstudianteEntity estudiante) {
+        DescuentoEntity descuentoAplicable = null;
+
+        for (DescuentoEntity descuento : this.descuentos) {
+            if (cumpleCondicionesDescuento(estudiante, descuento)) {
+                if (descuentoAplicable == null || descuento.getPorcentajeDescuento() > descuentoAplicable.getPorcentajeDescuento()) {
+                    descuentoAplicable = descuento;
+                }
+            }
+        }
+
+        return descuentoAplicable;
+    }
+
+    private boolean cumpleCondicionesDescuento(EstudianteEntity estudiante, DescuentoEntity descuento) {
+        // Obtener los datos relevantes del estudiante
+        String tipoColegioEstudiante = estudiante.getTipoColegioProcedencia();
+        int anioEgresoEstudiante = estudiante.getAnioEgresoColegio();
 
         // Obtener los datos relevantes del descuento
         String tipoColegioDescuento = descuento.getTipoColegioProcedencia();
         int anioEgresoDescuento = descuento.getAnioEgreso();
 
-        // Verificar si las condiciones del descuento coinciden con los datos de la cuota
-        return tipoColegioCuota.equals(tipoColegioDescuento) && anioEgresoCuota == anioEgresoDescuento;
+        // Verificar si las condiciones del descuento coinciden con los datos del estudiante
+        return tipoColegioEstudiante.equals(tipoColegioDescuento) && anioEgresoEstudiante == anioEgresoDescuento;
+    }
+
+    public void aplicarDescuentoAEstudiante(EstudianteEntity estudiante, List<DescuentoEntity> descuentos) {
+        // Lógica para aplicar los descuentos al estudiante
+        double montoConDescuento = calcularMontoCuotaConDescuentos(estudiante);
+
+        for (DescuentoEntity descuento : descuentos) {
+            if (cumpleCondicionesDescuento(estudiante, descuento)) {
+                // Aplicar el descuento al monto total
+                double porcentajeDescuento = descuento.getPorcentajeDescuento();
+                montoConDescuento *= (1 - (porcentajeDescuento / 100));
+            }
+        }
+
+
+    }
+
+    public List<CuotaPagoEntity> getCuotasPendientesByEstudiante(EstudianteEntity estudiante) {
+        return cuotaPagoRepository.findByEstudianteAndPagadaFalse(estudiante);
     }
 
 
+    public CuotaPagoEntity createCuotaPago(CuotaPagoEntity cuotaPago, EstudianteEntity estudiante) {
+        // Calcular el monto de la cuota con los descuentos correspondientes
+        double montoCalculado = calcularMontoCuotaConDescuentos(estudiante);
+
+        // Establecer el monto calculado con descuentos en la cuota
+        cuotaPago.setMonto(montoCalculado);
+
+        // Verificar el número máximo de cuotas permitidas
+        int maxCuotas = obtenerNumeroMaximoCuotas(estudiante);
+        if (cuotaPago.getNumeroCuota() > maxCuotas) {
+            // Manejar el error de cuotas excedidas
+            throw new RuntimeException("Número de cuota excede el máximo permitido.");
+        }
+
+        // Asociar el estudiante a la cuota de pago
+        cuotaPago.setEstudiante(estudiante);
+
+        // Guardar la cuota de pago
+        return cuotaPagoRepository.save(cuotaPago);
+    }
+
+    public void aplicarDescuentos(List<DescuentoEntity> descuentos) {
+        // Obtener todas las cuotas pendientes
+        List<CuotaPagoEntity> cuotasPendientes = cuotaPagoRepository.findByPagadaFalse();
+
+        for (CuotaPagoEntity cuota : cuotasPendientes) {
+            // Calcular el monto de la cuota con los nuevos descuentos correspondientes
+            double montoCalculado = calcularMontoCuotaConDescuentos(cuota.getEstudiante());
+
+            // Actualizar el monto de la cuota en la entidad
+            cuota.setMonto(montoCalculado);
+
+            // Guardar la cuota actualizada en la base de datos
+            cuotaPagoRepository.save(cuota);
+        }
+    }
+
+    private double calcularMontoCuotaConDescuentos(double montoBaseCuota, List<DescuentoEntity> descuentos) {
+        double montoConDescuento = montoBaseCuota;
+
+        for (DescuentoEntity descuento : descuentos) {
+            if (cumpleCondicionesDescuento(montoBaseCuota, descuento)) {
+                // Aplicar el descuento al monto de la cuota
+                double porcentajeDescuento = descuento.getPorcentajeDescuento();
+                montoConDescuento *= (1 - (porcentajeDescuento / 100));
+            }
+        }
+
+        return montoConDescuento;
+    }
+
+    private boolean cumpleCondicionesDescuento(double montoBaseCuota, DescuentoEntity descuento) {
+        // Obtén el umbral de monto del descuento
+        double umbralMonto = descuento.getUmbralMonto();
+
+        // Comprueba si el monto base de la cuota supera el umbral
+        if (montoBaseCuota >= umbralMonto) {
+            // Si el monto base es mayor o igual al umbral, el descuento se aplica
+            return true;
+        } else {
+            // Si no, el descuento no se aplica
+            return false;
+        }
+    }
 
 
 }

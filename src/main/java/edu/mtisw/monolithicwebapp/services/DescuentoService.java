@@ -34,4 +34,9 @@ public class DescuentoService {
         descuentoRepository.deleteById(id);
     }
 
+    public List<DescuentoEntity> getDescuentosByAnioEgresoAndTipoColegio(int anioEgreso, String tipoColegioProcedencia) {
+        return descuentoRepository.findByAnioEgresoAndTipoColegioProcedencia(anioEgreso, tipoColegioProcedencia);
+    }
+
+
 }

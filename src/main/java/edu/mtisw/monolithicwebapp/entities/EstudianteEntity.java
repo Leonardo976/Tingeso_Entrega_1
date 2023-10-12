@@ -37,6 +37,10 @@ public class EstudianteEntity {
     @JoinColumn(name = "puntajes_id")
     private PuntajesEntity puntajesPruebas_;
 
+    @OneToMany(mappedBy = "estudiante", cascade = CascadeType.ALL)
+    private List<CuotaPagoEntity> cuotas;
+
+
 
     @Column(name = "puntaje_promedio_pruebas")
     private Double puntajePromedioPruebas = 0.0; // Inicialización del campo en el constructor
