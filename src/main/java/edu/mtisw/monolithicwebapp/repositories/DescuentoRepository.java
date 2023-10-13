@@ -15,7 +15,7 @@ public interface DescuentoRepository extends JpaRepository<DescuentoEntity, Long
     @Query("SELECT d FROM DescuentoEntity d WHERE d.anioEgreso = :anioEgreso AND d.tipoColegioProcedencia = :tipoColegioProcedencia")
     List<DescuentoEntity> findByAnioEgresoAndTipoColegioProcedencia(@Param("anioEgreso") int anioEgreso, @Param("tipoColegioProcedencia") String tipoColegioProcedencia);
 
-
+    List<DescuentoEntity> findByRutEstudiante(String rutEstudiante);
 
 
 

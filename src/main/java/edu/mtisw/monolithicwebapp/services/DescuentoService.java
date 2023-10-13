@@ -17,7 +17,6 @@ public class DescuentoService {
         this.descuentoRepository = descuentoRepository;
     }
 
-
     public List<DescuentoEntity> obtenerTodosLosDescuentos() {
         return descuentoRepository.findAll();
     }
@@ -38,5 +37,9 @@ public class DescuentoService {
         return descuentoRepository.findByAnioEgresoAndTipoColegioProcedencia(anioEgreso, tipoColegioProcedencia);
     }
 
+    // Método para obtener descuentos por el RUT del estudiante
+    public List<DescuentoEntity> getDescuentosByRutEstudiante(String rutEstudiante) {
+        return descuentoRepository.findByRutEstudiante(rutEstudiante);
+    }
 
 }

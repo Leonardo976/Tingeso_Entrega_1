@@ -4,6 +4,7 @@ import edu.mtisw.monolithicwebapp.entities.CuotaPagoEntity;
 import edu.mtisw.monolithicwebapp.entities.DescuentoEntity;
 import edu.mtisw.monolithicwebapp.entities.EstudianteEntity;
 import edu.mtisw.monolithicwebapp.repositories.CuotaPagoRepository;
+import edu.mtisw.monolithicwebapp.repositories.EstudianteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,31 +21,28 @@ public class CuotaPagoService {
 
     private final CuotaPagoRepository cuotaPagoRepository;
     private final List<DescuentoEntity> descuentos; // Lista de descuentos
+    @Autowired
+    private EstudianteRepository estudianteRepository;
+    @Autowired
+    private SubirDataService subirDataService;
+    private DescuentoService descuentoService;
+
 
     @Autowired
-    public CuotaPagoService(CuotaPagoRepository cuotaPagoRepository) {
+    public CuotaPagoService(CuotaPagoRepository cuotaPagoRepository, List<DescuentoEntity> descuentos, DescuentoService descuentoService, EstudianteRepository estudianteRepository) {
         this.cuotaPagoRepository = cuotaPagoRepository;
-        this.descuentos = new ArrayList<>(); // Inicializa la lista de descuentos
+        this.descuentos = descuentos;
+        this.descuentoService = descuentoService;
+        this.estudianteRepository = estudianteRepository;
     }
 
     public List<CuotaPagoEntity> getAllCuotasPago() {
         return cuotaPagoRepository.findAll();
     }
 
-    public Optional<CuotaPagoEntity> getCuotaPagoById(Long id) {
-        return cuotaPagoRepository.findById(id);
-    }
 
-
-    public void deleteCuotaPago(Long id) {
-        cuotaPagoRepository.deleteById(id);
-    }
-
-    // Lógica para calcular el monto de la cuota con los descuentos correspondientes
-
-
-    // Lógica para calcular el monto de la cuota con los descuentos correspondientes
     public double calcularMontoCuotaConDescuentos(EstudianteEntity estudiante) {
+        // Lógica para calcular el monto de la cuota con los descuentos correspondientes
         String tipoColegio = estudiante.getTipoColegioProcedencia();
         int aniosEgreso = estudiante.getAnioEgresoColegio();
 
@@ -354,6 +352,214 @@ public class CuotaPagoService {
             return false;
         }
     }
+
+    public void actualizarMontosDeCuotasConDescuentos(EstudianteEntity estudiante) {
+        // Obtener todas las cuotas asociadas al estudiante
+        List<CuotaPagoEntity> cuotasEstudiante = cuotaPagoRepository.findByEstudiante(estudiante);
+
+        // Actualizar los montos de las cuotas existentes con los nuevos descuentos correspondientes
+        for (CuotaPagoEntity cuota : cuotasEstudiante) {
+            double montoConDescuento = calcularMontoCuotaConDescuentos(estudiante);
+            cuota.setMonto(montoConDescuento);
+        }
+
+        // Guardar las cuotas actualizadas en la base de datos
+        cuotaPagoRepository.saveAll(cuotasEstudiante);
+    }
+
+    public void aplicarDescuentosACuotasPendientes() {
+        // Obtener todas las cuotas pendientes
+        List<CuotaPagoEntity> cuotasPendientes = cuotaPagoRepository.findByPagadaFalse();
+
+        for (CuotaPagoEntity cuota : cuotasPendientes) {
+            // Obtener el estudiante asociado a la cuota
+            EstudianteEntity estudiante = cuota.getEstudiante();
+
+            // Calcular el monto de la cuota con los nuevos descuentos correspondientes
+            double montoConDescuento = calcularMontoCuotaConDescuentos(estudiante);
+
+            // Actualizar el monto de la cuota en la entidad
+            cuota.setMonto(montoConDescuento);
+        }
+
+        // Guardar las cuotas actualizadas en la base de datos
+        cuotaPagoRepository.saveAll(cuotasPendientes);
+    }
+
+    public void aplicarDescuentosACuotaEspecifica(CuotaPagoEntity cuota) {
+        // Obtener el estudiante asociado a la cuota
+        EstudianteEntity estudiante = cuota.getEstudiante();
+
+        // Calcular el monto de la cuota con los nuevos descuentos correspondientes
+        double montoConDescuento = calcularMontoCuotaConDescuentos(estudiante);
+
+        // Actualizar el monto de la cuota en la entidad
+        cuota.setMonto(montoConDescuento);
+
+        // Guardar la cuota actualizada en la base de datos
+        cuotaPagoRepository.save(cuota);
+    }
+    public void actualizarMontosParaEstudiante(String estudianteId) {
+        // Obtener el estudiante por su ID
+        Optional<EstudianteEntity> estudianteOptional = estudianteRepository.findById(Long.valueOf(estudianteId));
+
+        if (estudianteOptional.isPresent()) {
+            EstudianteEntity estudiante = estudianteOptional.get();
+
+            // Obtener las cuotas de pago relacionadas con el estudiante
+            List<CuotaPagoEntity> cuotas = cuotaPagoRepository.findByEstudiante(estudiante);
+
+            // Calcular el puntaje promedio de pruebas para el estudiante
+            double puntajePromedio = subirDataService.calcularPromedioPuntajes(estudiante.getRut());
+
+            // Calcular los meses de atraso en el pago de las cuotas (ajusta la lógica según tus necesidades)
+            int mesesAtraso = calcularMesesAtrasoCuotas(estudiante);
+
+            // Calcular el nuevo monto para cada cuota y actualizarlo
+            for (CuotaPagoEntity cuota : cuotas) {
+                double nuevoMonto = calcularNuevoMontoCuota(cuota, puntajePromedio, mesesAtraso, estudiante);
+                cuota.setMonto(nuevoMonto);
+            }
+
+            // Actualizar las cuotas en la base de datos
+            cuotaPagoRepository.saveAll(cuotas);
+        }
+    }
+
+
+    private int calcularMesesAtrasoCuotas(EstudianteEntity estudiante) {
+        // Obtener la fecha actual
+        LocalDate fechaActual = LocalDate.now();
+
+        // Obtener todas las cuotas pendientes de pago del estudiante
+        List<CuotaPagoEntity> cuotasPendientes = cuotaPagoRepository.findPendientesByEstudiante(String.valueOf(estudiante));
+
+        int mesesAtrasoMaximo = 0;
+
+        // Calcular los meses de atraso para cada cuota
+        for (CuotaPagoEntity cuota : cuotasPendientes) {
+            LocalDate fechaVencimiento = cuota.getFechaVencimiento();
+
+            if (fechaActual.isAfter(fechaVencimiento)) {
+                long mesesAtraso = ChronoUnit.MONTHS.between(fechaVencimiento, fechaActual);
+                mesesAtrasoMaximo = Math.max(mesesAtrasoMaximo, (int) mesesAtraso);
+            }
+        }
+
+        return mesesAtrasoMaximo;
+    }
+
+    private double calcularNuevoMontoCuota(CuotaPagoEntity cuota, double puntajePromedio, int mesesAtraso, EstudianteEntity estudiante) {
+        // Monto original de la cuota
+        double montoOriginal = cuota.getMonto();
+
+        // Obtener el tipo de colegio de procedencia desde EstudianteEntity
+        String tipoColegio = estudiante.getTipoColegioProcedencia();
+
+        // Obtener los años desde que egresó del colegio desde EstudianteEntity y convertir a int
+        String aniosEgresoStr = String.valueOf(estudiante.getAnioEgreso());
+        int aniosEgreso = Integer.parseInt(aniosEgresoStr);
+
+        // Calcular descuento según el tipo de colegio de procedencia
+        double descuentoTipoColegio = 0.0;
+        if (tipoColegio.equals("Municipal")) {
+            descuentoTipoColegio = 0.20; // 20% de descuento
+        } else if (tipoColegio.equals("Subvencionado")) {
+            descuentoTipoColegio = 0.10; // 10% de descuento
+        } else {
+            descuentoTipoColegio = 0.0; // Sin descuento
+        }
+
+        // Calcular descuento según los años desde que egresó del colegio
+        double descuentoAniosEgreso = 0.0;
+        if (aniosEgreso < 1) {
+            descuentoAniosEgreso = 0.15; // 15% de descuento
+        } else if (aniosEgreso >= 1 && aniosEgreso <= 2) {
+            descuentoAniosEgreso = 0.08; // 8% de descuento
+        } else if (aniosEgreso >= 3 && aniosEgreso <= 4) {
+            descuentoAniosEgreso = 0.04; // 4% de descuento
+        } else {
+            descuentoAniosEgreso = 0.0; // Sin descuento
+        }
+
+        // Calcular descuento según el puntaje promedio de pruebas
+        double descuentoPuntajePromedio = 0.0;
+        if (puntajePromedio >= 950) {
+            descuentoPuntajePromedio = 0.10; // 10% de descuento
+        } else if (puntajePromedio >= 900) {
+            descuentoPuntajePromedio = 0.05; // 5% de descuento
+        } else if (puntajePromedio >= 850) {
+            descuentoPuntajePromedio = 0.02; // 2% de descuento
+        }
+
+        // Calcular interés por meses de atraso
+        double interes = 0.0;
+        switch (mesesAtraso) {
+            case 0:
+                interes = 0.0;
+                break;
+            case 1:
+                interes = 0.03; // 3% de interés
+                break;
+            case 2:
+                interes = 0.06; // 6% de interés
+                break;
+            case 3:
+                interes = 0.09; // 9% de interés
+                break;
+            default:
+                interes = 0.15; // 15% de interés para más de 3 meses de atraso
+                break;
+        }
+
+        // Calcular el nuevo monto de la cuota
+        double nuevoMonto = montoOriginal - (montoOriginal * descuentoTipoColegio) - (montoOriginal * descuentoAniosEgreso) - (montoOriginal * descuentoPuntajePromedio) + (montoOriginal * interes);
+
+        return nuevoMonto;
+    }
+
+    // Método para aplicar descuentos a las cuotas de un estudiante
+    public void aplicarDescuentosACuotas(String rutEstudiante) {
+        // Obtener descuentos aplicables al estudiante por su RUT
+        List<DescuentoEntity> descuentosEstudiante = descuentoService.getDescuentosByRutEstudiante(rutEstudiante);
+
+        if (descuentosEstudiante != null && !descuentosEstudiante.isEmpty()) {
+            // Obtener todas las cuotas del estudiante por su RUT
+            List<CuotaPagoEntity> cuotasEstudiante = obtenerCuotasPorRutEstudiante(rutEstudiante);
+
+            if (cuotasEstudiante != null && !cuotasEstudiante.isEmpty()) {
+                // Iterar a través de todas las cuotas del estudiante
+                for (CuotaPagoEntity cuota : cuotasEstudiante) {
+                    // Calcular el descuento total a aplicar a esta cuota
+                    double descuentoTotal = 0.0;
+
+                    for (DescuentoEntity descuento : descuentosEstudiante) {
+                        // Aplicar lógica específica de descuento aquí, por ejemplo, porcentaje o cantidad fija
+                        // Acumular los descuentos en descuentoTotal
+                    }
+
+                    // Aplicar el descuento restando descuentoTotal del monto original de la cuota
+                    double nuevoMonto = cuota.getMonto() - descuentoTotal;
+
+                    // Actualizar el monto de la cuota en la base de datos
+                    cuota.setMonto(nuevoMonto);
+                    cuotaPagoRepository.save(cuota);
+                }
+            }
+        }
+    }
+
+    // Método para obtener todas las cuotas de un estudiante por su RUT
+    public List<CuotaPagoEntity> obtenerCuotasPorRutEstudiante(String rutEstudiante) {
+        return cuotaPagoRepository.findByRutEstudiante(rutEstudiante);
+    }
+
+    // Método para actualizar una cuota de pago en la base de datos
+    public void actualizarCuotaPago(CuotaPagoEntity cuotaPago) {
+        cuotaPagoRepository.save(cuotaPago);
+    }
+
+
 
 
 }

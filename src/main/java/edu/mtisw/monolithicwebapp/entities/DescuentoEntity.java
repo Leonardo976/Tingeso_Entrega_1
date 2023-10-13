@@ -29,5 +29,8 @@ public class DescuentoEntity {
     @Column(name = "porcentaje_descuento")
     private double porcentajeDescuento;
 
+    @Column(name = "rut_estudiante")
+    private String rutEstudiante;
+
 }
 

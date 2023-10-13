@@ -28,17 +28,18 @@ public class CuotaPagoEntity {
     private double monto;
     private LocalDate fechaVencimiento;
     private boolean pagada;
+    private String rutEstudiante;
 
     @PrePersist
     public void calculateDueDate() {
-        // Supongamos que las cuotas se pagan mensualmente
-        // Puedes ajustar la lógica según tus requisitos
+
 
         // Obtener la fecha actual
         LocalDate fechaActual = LocalDate.now();
 
-        // Calcular la fecha de vencimiento sumando meses al mes actual
-        // Por ejemplo, aquí se suma el número de cuotas como meses a la fecha actual
+
         fechaVencimiento = fechaActual.plusMonths(numeroCuota);
     }
+
+
 }

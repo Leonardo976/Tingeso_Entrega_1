@@ -38,6 +38,8 @@ public class SubirDataService {
     private EstudianteService estudianteService;
     @Autowired
     private  SubirDataService subirDataService;
+    @Autowired
+    private CuotaPagoService cuotaPagoService;
     private Long idEstudiante;
 
 
@@ -129,10 +131,14 @@ public class SubirDataService {
                     // Guardar newData en la base de datos
                     subirDataService.guardarData(newData);
                     System.out.println("Datos guardados para el estudiante con rut: " + rut);
+
+                    // Aplicar descuentos a los montos en la tabla cuota_pago
+                    cuotaPagoService.aplicarDescuentosACuotas(rut);
+                    System.out.println("Descuentos aplicados para el estudiante con rut: " + rut);
                 } catch (Exception e) {
-                    System.err.println("Error al guardar datos para el estudiante con rut: " + rut);
+                    System.err.println("Error al procesar datos para el estudiante con rut: " + rut);
                     e.printStackTrace();
-                    // Puedes manejar el error de guardar de acuerdo a tus necesidades
+                    // Puedes manejar el error de procesamiento de datos de acuerdo a tus necesidades
                 }
             } else {
                 // Manejar el caso en el que no se encuentra el estudiante
@@ -143,6 +149,7 @@ public class SubirDataService {
             System.out.println("Línea CSV incorrecta: " + lineaCSV);
         }
     }
+
 
 
 

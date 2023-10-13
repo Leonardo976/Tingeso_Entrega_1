@@ -5,6 +5,8 @@ import edu.mtisw.monolithicwebapp.entities.CuotaPagoEntity;
 import edu.mtisw.monolithicwebapp.entities.EstudianteEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -18,5 +20,13 @@ public interface CuotaPagoRepository extends JpaRepository<CuotaPagoEntity, Long
     List<CuotaPagoEntity> findByEstudiante(EstudianteEntity estudiante);
 
     List<CuotaPagoEntity> findByEstudianteAndPagadaFalse(EstudianteEntity estudiante);
+
+    List<CuotaPagoEntity> findByRutEstudiante(String rutEstudiante);
+
+    @Query("SELECT c FROM CuotaPagoEntity c WHERE c.estudiante.rut = :rutEstudiante AND c.pagada = false")
+    List<CuotaPagoEntity> findPendientesByEstudiante(@Param("rutEstudiante") String rutEstudiante);
+
+
+
 
 }
