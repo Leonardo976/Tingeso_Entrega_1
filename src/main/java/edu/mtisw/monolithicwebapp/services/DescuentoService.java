@@ -2,6 +2,8 @@ package edu.mtisw.monolithicwebapp.services;
 
 import edu.mtisw.monolithicwebapp.entities.DescuentoEntity;
 import edu.mtisw.monolithicwebapp.repositories.DescuentoRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +12,8 @@ import java.util.List;
 @Service
 public class DescuentoService {
 
+    private final Logger logger = LoggerFactory.getLogger(DescuentoService.class);
+
     private final DescuentoRepository descuentoRepository;
 
     @Autowired
@@ -17,29 +21,11 @@ public class DescuentoService {
         this.descuentoRepository = descuentoRepository;
     }
 
-    public List<DescuentoEntity> obtenerTodosLosDescuentos() {
-        return descuentoRepository.findAll();
+    public List<DescuentoEntity> getDescuentosByRutEstudiante(String rut) {
+        List<DescuentoEntity> descuentos = descuentoRepository.findByRutEstudiante(rut);
+        if (descuentos.isEmpty() && logger != null) { // Also added null check for logger
+            logger.warn("No descuentos found for rutEstudiante: {}", rut);
+        }
+        return descuentos;
     }
-
-    public DescuentoEntity obtenerDescuentoPorId(Long id) {
-        return descuentoRepository.findById(id).orElse(null);
-    }
-
-    public void guardarDescuento(DescuentoEntity descuento) {
-        descuentoRepository.save(descuento);
-    }
-
-    public void eliminarDescuento(Long id) {
-        descuentoRepository.deleteById(id);
-    }
-
-    public List<DescuentoEntity> getDescuentosByAnioEgresoAndTipoColegio(int anioEgreso, String tipoColegioProcedencia) {
-        return descuentoRepository.findByAnioEgresoAndTipoColegioProcedencia(anioEgreso, tipoColegioProcedencia);
-    }
-
-    // Método para obtener descuentos por el RUT del estudiante
-    public List<DescuentoEntity> getDescuentosByRutEstudiante(String rutEstudiante) {
-        return descuentoRepository.findByRutEstudiante(rutEstudiante);
-    }
-
 }

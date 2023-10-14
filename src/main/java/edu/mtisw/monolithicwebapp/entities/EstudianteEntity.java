@@ -65,18 +65,18 @@ public class EstudianteEntity {
     }
 
     public double getPuntajePromedioPruebas() {
-        if (puntajesPruebas_ != null) {
-            List<Double> puntajes = puntajesPruebas_.getPuntajesPruebas();
-            if (!puntajes.isEmpty()) {
-                double suma = 0.0;
-                for (Double puntaje : puntajes) {
-                    suma += puntaje;
-                }
-                return suma / puntajes.size();
-            }
+        if (puntajesPruebas == null || puntajesPruebas.size() == 0) {
+            return 0.0;
         }
-        return 0.0; // Manejo de caso vacío
+
+        double sum = 0.0;
+        for (Integer puntaje : puntajesPruebas) {
+            sum += puntaje;
+        }
+
+        return sum / puntajesPruebas.size();
     }
+
 
 
 }

@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.sql.Date;
 import java.time.LocalDate;
 
 @Entity
@@ -39,6 +40,17 @@ public class CuotaPagoEntity {
 
 
         fechaVencimiento = fechaActual.plusMonths(numeroCuota);
+    }
+
+    public void setFechaVencimiento(LocalDate fechaVencimiento) {
+        // Obtener la fecha de inicio del día en la zona horaria actual
+        LocalDate fechaInicioDelDia = LocalDate.now();
+
+        // Combina la fecha de inicio del día con la fecha de vencimiento para obtener una fecha y hora completa
+        fechaVencimiento = LocalDate.from(fechaVencimiento.atTime(fechaInicioDelDia.atStartOfDay().toLocalTime()));
+
+        // Convierte LocalDate a Date
+        this.fechaVencimiento = Date.valueOf(fechaVencimiento).toLocalDate();
     }
 
 

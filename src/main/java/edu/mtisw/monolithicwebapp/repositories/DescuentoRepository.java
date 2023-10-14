@@ -20,4 +20,5 @@ public interface DescuentoRepository extends JpaRepository<DescuentoEntity, Long
 
 
 
+
 }

@@ -55,8 +55,8 @@ public class EstudianteService {
         }
     }
 
-    public ArrayList<EstudianteEntity> getAllEstudiantes() {
-        return (ArrayList<EstudianteEntity>) estudianteRepository.findAll();
+    public List<EstudianteEntity> getAllEstudiantes() {
+        return (List<EstudianteEntity>) estudianteRepository.findAll();
     }
 
     public EstudianteEntity saveStudent(EstudianteEntity estudiante) {
@@ -75,7 +75,6 @@ public class EstudianteService {
         return estudiante.orElse(null);
     }
 
-    // Método para actualizar los puntajes de pruebas de un estudiante por ID
     public EstudianteEntity actualizarPuntajes(Long estudianteId, List<Integer> nuevosPuntajes) {
         Optional<EstudianteEntity> estudianteOptional = estudianteRepository.findById(estudianteId);
 
@@ -83,13 +82,17 @@ public class EstudianteService {
             EstudianteEntity estudiante = estudianteOptional.get();
             estudiante.setPuntajesPruebas(nuevosPuntajes);
 
-            // Aquí puedes realizar cualquier otra lógica relacionada con la actualización de puntajes
-
-            return estudianteRepository.save(estudiante);
+            EstudianteEntity updatedEstudiante = estudianteRepository.save(estudiante);
+            if (updatedEstudiante != null) {
+                return updatedEstudiante;
+            } else {
+                throw new RuntimeException("Error al actualizar los puntajes del estudiante con ID: " + estudianteId);
+            }
         } else {
             throw new RuntimeException("Estudiante no encontrado con ID: " + estudianteId);
         }
     }
+
     public void actualizarPromedioPuntajes(String rut, double promedio) {
         Optional<EstudianteEntity> estudianteOptional = Optional.ofNullable(estudianteRepository.findByRut(rut));
         if (estudianteOptional.isPresent()) {
@@ -113,22 +116,26 @@ public class EstudianteService {
 
 
     public double calcularPromedioService(Long estudianteId) {
-        Optional<EstudianteEntity> estudianteOptional = estudianteRepository.findById(estudianteId);
+        EstudianteEntity estudiante = estudianteRepository.findById(estudianteId)
+                .orElseThrow(() -> new EntityNotFoundException("Estudiante no encontrado con ID: " + estudianteId));
 
-        if (estudianteOptional.isPresent()) {
-            EstudianteEntity estudiante = estudianteOptional.get();
+        List<Integer> puntajes = estudiante.getPuntajesPruebas();
 
-            // Utiliza la lógica de la entidad para calcular el promedio
-            double promedio = estudiante.getPuntajePromedioPruebas();
-
-            // Guarda el estudiante actualizado en la base de datos
-            estudianteRepository.save(estudiante);
-
-            return promedio;
-        } else {
-            throw new EntityNotFoundException("Estudiante no encontrado con ID: " + estudianteId);
+        if (puntajes == null || puntajes.isEmpty()) {
+            throw new IllegalStateException("El estudiante con ID: " + estudianteId + " no tiene puntajes registrados");
         }
+
+        double sum = puntajes.stream().mapToDouble(Integer::doubleValue).sum();
+        double promedio = sum / puntajes.size();
+
+        System.out.println("Promedio calculado: " + promedio); // registro para depuración
+
+        estudiante.setPuntajePromedioPruebas(promedio);
+        estudianteRepository.save(estudiante);
+
+        return promedio;
     }
+
 
 
     public List<EstudianteEntity> obtenerEstudiantes() {
