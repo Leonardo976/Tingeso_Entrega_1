@@ -1,8 +1,1 @@
-edu\mtisw\monolithicwebapp\SubirDataServiceTest$2.class
-edu\mtisw\monolithicwebapp\CuotaPagoServiceTest.class
-edu\mtisw\monolithicwebapp\DescuentoServiceTest.class
-edu\mtisw\monolithicwebapp\PuntajesServiceTest.class
-edu\mtisw\monolithicwebapp\SubirDataServiceTest.class
-edu\mtisw\monolithicwebapp\SubirDataServiceTest$1.class
-edu\mtisw\monolithicwebapp\MonolithicWebappApplicationTests.class
-edu\mtisw\monolithicwebapp\EstudianteServiceTest.class
+com\example\demo\DemoApplicationTests.class

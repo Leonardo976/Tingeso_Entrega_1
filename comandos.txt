@@ -1,0 +1,4 @@
+mvn clean install
+docker build -t leonardom20/tingeso_entrega_1 .
+docker push leonardom20/tingeso_entrega_1
+docker-compose up

@@ -1,0 +1,17 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: proyecto_docker
+  jpa:
+    show-sql: true
+    hibernate:
+      dialect: MySQL8Dialect
+      ddl-auto: update
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    dbname: tingeso
+    url: jdbc:mysql://localhost:3306/tingeso?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+    username: root
+    password: 1234
