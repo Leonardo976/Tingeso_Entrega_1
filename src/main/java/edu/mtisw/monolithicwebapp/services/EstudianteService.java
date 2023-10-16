@@ -1,15 +1,15 @@
 package edu.mtisw.monolithicwebapp.services;
 
-import edu.mtisw.monolithicwebapp.entities.CuotaPagoEntity;
+
 import edu.mtisw.monolithicwebapp.entities.EstudianteEntity;
 import edu.mtisw.monolithicwebapp.repositories.EstudianteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
-import java.time.LocalDate;
-import java.util.ArrayList;
+
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

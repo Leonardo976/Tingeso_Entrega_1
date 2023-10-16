@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: edu.mtisw.monolithicwebapp.SubirDataServiceTest
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.048 s - in edu.mtisw.monolithicwebapp.SubirDataServiceTest
